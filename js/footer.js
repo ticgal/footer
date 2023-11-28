@@ -1,4 +1,3 @@
-<?php
 /*
  -------------------------------------------------------------------------
  Footer plugin for GLPI
@@ -28,37 +27,27 @@
  ----------------------------------------------------------------------
 */
 
-use Glpi\Plugin\Hooks;
-
-define('PLUGIN_FOOTER_VERSION', '0.0.1');
-define('PLUGIN_FOOTER_MIN_GLPI', '10.0.0');
-define('PLUGIN_FOOTER_MAX_GLPI', '10.1.99');
-
-function plugin_version_footer()
-{
-	return [
-		'name' => 'Footer',
-		'version' => PLUGIN_FOOTER_VERSION,
-		'author' => '<a href="https://tic.gal">TICgal</a>',
-		'homepage' => 'https://tic.gal',
-		'license' => 'GPLv3+',
-		'requirements' => [
-			'glpi' => [
-				'min' => PLUGIN_FOOTER_MIN_GLPI,
-				'max' => PLUGIN_FOOTER_MAX_GLPI,
-			]
-		]
-	];
-}
-
-function plugin_init_footer()
-{
-	global $PLUGIN_HOOKS, $CFG_GLPI;
-
-	$PLUGIN_HOOKS['csrf_compliant']['footer'] = true;
-
-	$plugin = new Plugin();
-	if ($plugin->isActivated('footer')) {
-		$PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
-	}
-}
+var ajax_url = CFG_GLPI.root_doc + "/" + GLPI_PLUGINS_PATH.footer + "/ajax/footer.php";
+$(document).ready(function () {
+	jQuery.ajax({
+		url: ajax_url,
+		type: "POST",
+		data: {
+			"action": "get_footer"
+		},
+		dataType: "json",
+		success: function (data) {
+			if (data.length > 0) {
+				var html = "<footer style='z-index: 99999;' class='d-flex flex-row bottom-0 w-100 card'>"+
+					"<div class='d-flex flex-row align-items-center'>"+
+					"<div class='d-flex w-100 justify-content-between align-items-center'>"+
+					"<ul class='nav nav-tabs align-items-center border-0' style='font-size: xx-small;'>";
+					$.each(data, function (key, value) {
+						html += "<li class='d-inline-block p-2'><a class='' href='" + value.url + "' target='_blank'>"+value.name+"</a></li>";
+					});
+					html += "</ul></div></div></footer>";
+					$("body").append(html);
+			}
+		}
+	});
+});

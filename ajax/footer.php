@@ -28,37 +28,39 @@
  ----------------------------------------------------------------------
 */
 
-use Glpi\Plugin\Hooks;
+global $DB;
 
-define('PLUGIN_FOOTER_VERSION', '0.0.1');
-define('PLUGIN_FOOTER_MIN_GLPI', '10.0.0');
-define('PLUGIN_FOOTER_MAX_GLPI', '10.1.99');
+include("../../../inc/includes.php");
+header("Content-Type: text/html; charset=UTF-8");
+Html::header_nocache();
 
-function plugin_version_footer()
-{
-	return [
-		'name' => 'Footer',
-		'version' => PLUGIN_FOOTER_VERSION,
-		'author' => '<a href="https://tic.gal">TICgal</a>',
-		'homepage' => 'https://tic.gal',
-		'license' => 'GPLv3+',
-		'requirements' => [
-			'glpi' => [
-				'min' => PLUGIN_FOOTER_MIN_GLPI,
-				'max' => PLUGIN_FOOTER_MAX_GLPI,
-			]
-		]
+Session::checkLoginUser();
+
+if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
+	$query = [
+		'FROM' => PluginFooterLink::getTable(),
+		'WHERE' => getEntitiesRestrictCriteria(PluginFooterLink::getTable()),
 	];
-}
 
-function plugin_init_footer()
-{
-	global $PLUGIN_HOOKS, $CFG_GLPI;
-
-	$PLUGIN_HOOKS['csrf_compliant']['footer'] = true;
-
-	$plugin = new Plugin();
-	if ($plugin->isActivated('footer')) {
-		$PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
+	$link = [];
+	foreach ($DB->request($query) as $data) {
+		$link[] = [
+			'url' => DropdownTranslation::getTranslatedValue(
+				$data['id'],
+				PluginFooterLink::getType(),
+				'url',
+				$_SESSION['glpilanguage'],
+				$data['url']
+			),
+			'name' => DropdownTranslation::getTranslatedValue(
+				$data['id'],
+				PluginFooterLink::getType(),
+				'name',
+				$_SESSION['glpilanguage'],
+				$data['name']
+			),
+		];
 	}
+
+	echo json_encode($link);
 }
