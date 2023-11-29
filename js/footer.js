@@ -38,8 +38,8 @@ $(document).ready(function () {
 		dataType: "json",
 		success: function (data) {
 			if (data.length > 0) {
-				var html = "<footer style='z-index: 99999;' class='d-flex flex-row bottom-0 w-100 card'>"+
-					"<div class='d-flex flex-row align-items-center'>"+
+				var html = "<footer style='z-index: 999;' class='position-fixed d-flex flex-row bottom-0 w-100 card'>"+
+					"<div class='d-flex ms-auto flex-row align-items-center'>"+
 					"<div class='d-flex w-100 justify-content-between align-items-center'>"+
 					"<ul class='nav nav-tabs align-items-center border-0' style='font-size: xx-small;'>";
 					$.each(data, function (key, value) {
@@ -47,6 +47,7 @@ $(document).ready(function () {
 					});
 					html += "</ul></div></div></footer>";
 					$("html").append(html);
+					$("body > div.page").css("padding-bottom", "30px");
 			}
 		}
 	});
