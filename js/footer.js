@@ -46,7 +46,7 @@ $(document).ready(function () {
 						html += "<li class='d-inline-block p-2'><a class='' href='" + value.url + "' target='_blank'>"+value.name+"</a></li>";
 					});
 					html += "</ul></div></div></footer>";
-					$("body").append(html);
+					$("html").append(html);
 			}
 		}
 	});
