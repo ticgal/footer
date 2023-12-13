@@ -39,7 +39,7 @@ Session::checkLoginUser();
 if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
 	$query = [
 		'FROM' => PluginFooterLink::getTable(),
-		'WHERE' => getEntitiesRestrictCriteria(PluginFooterLink::getTable()),
+		'WHERE' => getEntitiesRestrictCriteria(PluginFooterLink::getTable(), '', '', true),
 	];
 
 	$link = [];
