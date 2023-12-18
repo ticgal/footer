@@ -38,7 +38,7 @@ $(document).ready(function () {
 		dataType: "json",
 		success: function (data) {
 			if (data.length > 0) {
-				var html = "<footer style='z-index: 999;font-family: var(--tblr-body-font-family);' class='position-fixed d-flex flex-row bottom-0 w-100 card'>"+
+				var html = "<footer id='pluginfooter' style='z-index: 999;font-family: var(--tblr-body-font-family);' class='position-fixed d-flex flex-row bottom-0 w-100 card'>"+
 					"<div class='d-flex ms-auto flex-row align-items-center'>"+
 					"<div class='d-flex w-100 justify-content-between align-items-center'>"+
 					"<ul class='nav nav-tabs align-items-center border-0' style='font-size: xx-small;'>";
