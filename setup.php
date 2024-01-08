@@ -59,6 +59,8 @@ function plugin_init_footer()
 
 	$plugin = new Plugin();
 	if ($plugin->isActivated('footer')) {
-		$PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
+		if (Session::getLoginUserID()) {
+			$PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
+		}
 	}
 }
