@@ -27,52 +27,8 @@
  @since     2022
  ----------------------------------------------------------------------
 */
+include("../../../inc/includes.php");
 
-function plugin_footer_install()
-{
-	$migration = new Migration(PLUGIN_FOOTER_VERSION);
 
-	foreach (glob(dirname(__FILE__) . '/inc/*') as $filepath) {
-		if (preg_match("/inc.(.+)\.class.php/", $filepath, $matches)) {
-			$classname = 'PluginFooter' . ucfirst($matches[1]);
-			include_once($filepath);
-			if (method_exists($classname, 'install')) {
-				$classname::install($migration);
-			}
-		}
-	}
-	$migration->executeMigration();
-
-	return true;
-}
-
-function plugin_footer_uninstall()
-{
-	$migration = new Migration(PLUGIN_FOOTER_VERSION);
-
-	foreach (glob(dirname(__FILE__) . '/inc/*') as $filepath) {
-		if (preg_match("/inc.(.+)\.class.php/", $filepath, $matches)) {
-			$classname = 'PluginFooter' . ucfirst($matches[1]);
-			include_once($filepath);
-			if (method_exists($classname, 'uninstall')) {
-				$classname::uninstall($migration);
-			}
-		}
-	}
-	$migration->executeMigration();
-
-	return true;
-}
-
-function plugin_footer_getDropdown() {
-	$plugin = new Plugin();
-
-	if ($plugin->isActivated("footer")) {
-		return [
-			'PluginFooterLink' => PluginFooterLink::getTypeName(),
-			'PluginFooterMenu' => PluginFooterMenu::getTypeName()
-		];
-	}
-
-	return [];
-}
+$dropdown = new PluginFooterMenu();
+include(GLPI_ROOT . "/front/dropdown.common.form.php");
