@@ -63,4 +63,37 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
 	}
 
 	echo json_encode($link);
+} elseif (isset($_POST['action']) && $_POST['action'] == 'get_menu') {
+	$interface = 'helpdesk';
+	if (isset($_SESSION['glpiactiveprofile']['interface'])) {
+		$interface = $_SESSION['glpiactiveprofile']['interface'];
+	}
+	$query = [
+		'FROM' => PluginFooterMenu::getTable(),
+		'WHERE' => [
+			'interface' => ['both', $interface],
+		] + getEntitiesRestrictCriteria(PluginFooterMenu::getTable(), '', '', true),
+	];
+	$link = [];
+	foreach ($DB->request($query) as $data) {
+		$link[] = [
+			'url' => DropdownTranslation::getTranslatedValue(
+				$data['id'],
+				PluginFooterMenu::getType(),
+				'url',
+				$_SESSION['glpilanguage'],
+				$data['url']
+			),
+			'name' => DropdownTranslation::getTranslatedValue(
+				$data['id'],
+				PluginFooterMenu::getType(),
+				'name',
+				$_SESSION['glpilanguage'],
+				$data['name']
+			),
+			'icon' => $data['icon'],
+			'target' => ($data['is_blank']) ? '_blank' : '_self',
+		];
+	}
+	echo json_encode($link);
 }
