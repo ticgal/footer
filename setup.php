@@ -30,7 +30,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_FOOTER_VERSION', '1.0.0');
+define('PLUGIN_FOOTER_VERSION', '1.1.0');
 define('PLUGIN_FOOTER_MIN_GLPI', '10.0.0');
 define('PLUGIN_FOOTER_MAX_GLPI', '10.1.99');
 
