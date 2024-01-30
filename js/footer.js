@@ -38,17 +38,21 @@ $(document).ready(function () {
 			},
 			dataType: "json",
 			success: function (data) {
-				if (data.length > 0) {
-					var html = "<footer id='pluginfooter' style='z-index: 999;font-family: var(--tblr-body-font-family);' class='position-fixed d-flex flex-row bottom-0 w-100 card'>" +
+				if (data.links.length > 0) {
+					var html_class = "d-flex flex-row bottom-0 w-100 card";
+					if (data.config.fixed == true) {
+						html_class = "position-fixed d-flex flex-row bottom-0 w-100 card";
+						$("body > div.page").css("padding-bottom", "30px");
+					}
+					var html = "<footer id='pluginfooter' style='z-index: 999;font-family: var(--tblr-body-font-family);' class='" + html_class + "'>" +
 						"<div class='d-flex ms-auto flex-row align-items-center'>" +
 						"<div class='d-flex w-100 justify-content-between align-items-center'>" +
 						"<ul class='nav nav-tabs align-items-center border-0' style='font-size: xx-small;'>";
-					$.each(data, function (key, value) {
+					$.each(data.links, function (key, value) {
 						html += "<li class='d-inline-block p-2'><a class='' href='" + value.url + "' target='_blank'>" + value.name + "</a></li>";
 					});
 					html += "</ul></div></div></footer>";
 					$("html").append(html);
-					$("body > div.page").css("padding-bottom", "30px");
 				}
 			}
 		});
@@ -69,7 +73,7 @@ $(document).ready(function () {
 						a.setAttribute("href", value.url);
 						a.setAttribute("target", value.target);
 						var i = document.createElement("i");
-						i.setAttribute("class", "fa "+value.icon);
+						i.setAttribute("class", "fa " + value.icon);
 						i.style.fontFamily = "'Font Awesome 6 Free', 'Font Awesome 6 Brands'";
 						var html = document.createTextNode(value.name);
 						a.appendChild(i);
