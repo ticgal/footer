@@ -60,7 +60,9 @@ function plugin_init_footer()
 	$plugin = new Plugin();
 	if ($plugin->isActivated('footer')) {
 		if (Session::getLoginUserID()) {
-			$PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
+			if (!isset($_REQUEST['_in_modal']) || !$_REQUEST['_in_modal']) {
+				$PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
+			}
 		}
 	}
 }

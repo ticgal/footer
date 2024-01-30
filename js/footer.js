@@ -29,54 +29,56 @@
 
 var ajax_url = CFG_GLPI.root_doc + "/" + GLPI_PLUGINS_PATH.footer + "/ajax/footer.php";
 $(document).ready(function () {
-	jQuery.ajax({
-		url: ajax_url,
-		type: "POST",
-		data: {
-			"action": "get_footer"
-		},
-		dataType: "json",
-		success: function (data) {
-			if (data.length > 0) {
-				var html = "<footer id='pluginfooter' style='z-index: 999;font-family: var(--tblr-body-font-family);' class='position-fixed d-flex flex-row bottom-0 w-100 card'>" +
-					"<div class='d-flex ms-auto flex-row align-items-center'>" +
-					"<div class='d-flex w-100 justify-content-between align-items-center'>" +
-					"<ul class='nav nav-tabs align-items-center border-0' style='font-size: xx-small;'>";
-				$.each(data, function (key, value) {
-					html += "<li class='d-inline-block p-2'><a class='' href='" + value.url + "' target='_blank'>" + value.name + "</a></li>";
-				});
-				html += "</ul></div></div></footer>";
-				$("html").append(html);
-				$("body > div.page").css("padding-bottom", "30px");
+	if (window.location === window.parent.location) {
+		jQuery.ajax({
+			url: ajax_url,
+			type: "POST",
+			data: {
+				"action": "get_footer"
+			},
+			dataType: "json",
+			success: function (data) {
+				if (data.length > 0) {
+					var html = "<footer id='pluginfooter' style='z-index: 999;font-family: var(--tblr-body-font-family);' class='position-fixed d-flex flex-row bottom-0 w-100 card'>" +
+						"<div class='d-flex ms-auto flex-row align-items-center'>" +
+						"<div class='d-flex w-100 justify-content-between align-items-center'>" +
+						"<ul class='nav nav-tabs align-items-center border-0' style='font-size: xx-small;'>";
+					$.each(data, function (key, value) {
+						html += "<li class='d-inline-block p-2'><a class='' href='" + value.url + "' target='_blank'>" + value.name + "</a></li>";
+					});
+					html += "</ul></div></div></footer>";
+					$("html").append(html);
+					$("body > div.page").css("padding-bottom", "30px");
+				}
 			}
-		}
-	});
-	jQuery.ajax({
-		url: ajax_url,
-		type: "POST",
-		data: {
-			"action": "get_menu"
-		},
-		dataType: "json",
-		success: function (data) {
-			if (data.length > 0) {
-				$.each(data, function (key, value) {
-					var li = document.createElement("li");
-					li.setAttribute("class", "nav-item dropdown");
-					var a = document.createElement("a");
-					a.setAttribute("class", "nav-link dropdown-item");
-					a.setAttribute("href", value.url);
-					a.setAttribute("target", value.target);
-					var i = document.createElement("i");
-					i.setAttribute("class", "fa "+value.icon);
-					i.style.fontFamily = "'Font Awesome 6 Free', 'Font Awesome 6 Brands'";
-					var html = document.createTextNode(value.name);
-					a.appendChild(i);
-					a.appendChild(html);
-					li.appendChild(a);
-					$("#navbar-menu ul").append(li);
-				});
+		});
+		jQuery.ajax({
+			url: ajax_url,
+			type: "POST",
+			data: {
+				"action": "get_menu"
+			},
+			dataType: "json",
+			success: function (data) {
+				if (data.length > 0) {
+					$.each(data, function (key, value) {
+						var li = document.createElement("li");
+						li.setAttribute("class", "nav-item dropdown");
+						var a = document.createElement("a");
+						a.setAttribute("class", "nav-link dropdown-item");
+						a.setAttribute("href", value.url);
+						a.setAttribute("target", value.target);
+						var i = document.createElement("i");
+						i.setAttribute("class", "fa "+value.icon);
+						i.style.fontFamily = "'Font Awesome 6 Free', 'Font Awesome 6 Brands'";
+						var html = document.createTextNode(value.name);
+						a.appendChild(i);
+						a.appendChild(html);
+						li.appendChild(a);
+						$("#navbar-menu ul").append(li);
+					});
+				}
 			}
-		}
-	});
+		});
+	}
 });
