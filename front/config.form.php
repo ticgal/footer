@@ -27,44 +27,20 @@
  @since     2022
  ----------------------------------------------------------------------
 */
+include("../../../inc/includes.php");
 
-use Glpi\Plugin\Hooks;
-
-define('PLUGIN_FOOTER_VERSION', '1.0.0');
-define('PLUGIN_FOOTER_MIN_GLPI', '10.0.0');
-define('PLUGIN_FOOTER_MAX_GLPI', '10.1.99');
-
-function plugin_version_footer()
-{
-	return [
-		'name' => 'Footer',
-		'version' => PLUGIN_FOOTER_VERSION,
-		'author' => '<a href="https://tic.gal">TICgal</a>',
-		'homepage' => 'https://tic.gal',
-		'license' => 'GPLv3+',
-		'requirements' => [
-			'glpi' => [
-				'min' => PLUGIN_FOOTER_MIN_GLPI,
-				'max' => PLUGIN_FOOTER_MAX_GLPI,
-			]
-		]
-	];
+$plugin = new Plugin();
+if (!$plugin->isInstalled('footer') || !$plugin->isActivated('footer')) {
+	Html::displayNotFoundError();
 }
 
-function plugin_init_footer()
-{
-	global $PLUGIN_HOOKS, $CFG_GLPI;
+Session::checkRight('config', UPDATE);
 
-	$PLUGIN_HOOKS['csrf_compliant']['footer'] = true;
-
-	$plugin = new Plugin();
-	if ($plugin->isActivated('footer')) {
-		if (Session::getLoginUserID()) {
-			if (!isset($_REQUEST['_in_modal']) || !$_REQUEST['_in_modal']) {
-				$PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
-			}
-		}
-		$PLUGIN_HOOKS['config_page']['footer'] = 'front/config.form.php';
-		Plugin::registerClass('PluginFooterConfig', ['addtabon' => 'Config']);
-	}
+$config = new PluginFooterConfig();
+if (isset($_POST["update"])) {
+	$config->check($_POST['id'], UPDATE);
+	$config->update($_POST);
+	Html::back();
 }
+
+Html::redirect($CFG_GLPI["root_doc"] . "/front/config.form.php?forcetab=" . urlencode('PluginFooterConfig$1'));

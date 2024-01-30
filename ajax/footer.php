@@ -36,15 +36,22 @@ Html::header_nocache();
 
 Session::checkLoginUser();
 
+$config = new PluginFooterConfig();
+
 if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
 	$query = [
 		'FROM' => PluginFooterLink::getTable(),
 		'WHERE' => getEntitiesRestrictCriteria(PluginFooterLink::getTable(), '', '', true),
 	];
 
-	$link = [];
+	$link = [
+		'config' => [
+			'fixed' => $config->fields['fixed'],
+		],
+		'links' => []
+	];
 	foreach ($DB->request($query) as $data) {
-		$link[] = [
+		$link['links'][] = [
 			'url' => DropdownTranslation::getTranslatedValue(
 				$data['id'],
 				PluginFooterLink::getType(),
