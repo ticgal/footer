@@ -36,6 +36,8 @@ Html::header_nocache();
 
 Session::checkLoginUser();
 
+use Glpi\Toolbox\Sanitizer;
+
 $config = new PluginFooterConfig();
 
 if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
@@ -59,13 +61,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
 				$_SESSION['glpilanguage'],
 				$data['url']
 			),
-			'name' => DropdownTranslation::getTranslatedValue(
+			'name' => Sanitizer::decodeHtmlSpecialChars(DropdownTranslation::getTranslatedValue(
 				$data['id'],
 				PluginFooterLink::getType(),
 				'name',
 				$_SESSION['glpilanguage'],
 				$data['name']
-			),
+			)),
 		];
 	}
 
@@ -91,13 +93,13 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
 				$_SESSION['glpilanguage'],
 				$data['url']
 			),
-			'name' => DropdownTranslation::getTranslatedValue(
+			'name' => Sanitizer::decodeHtmlSpecialChars(DropdownTranslation::getTranslatedValue(
 				$data['id'],
 				PluginFooterMenu::getType(),
 				'name',
 				$_SESSION['glpilanguage'],
 				$data['name']
-			),
+			)),
 			'icon' => $data['icon'],
 			'target' => ($data['is_blank']) ? '_blank' : '_self',
 		];
