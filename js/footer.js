@@ -69,9 +69,10 @@ $(document).ready(function () {
 						var li = document.createElement("li");
 						li.setAttribute("class", "nav-item dropdown");
 						var a = document.createElement("a");
-						a.setAttribute("class", "nav-link dropdown-item");
+						a.setAttribute("class", "nav-link");
 						a.setAttribute("href", value.url);
 						a.setAttribute("target", value.target);
+						a.setAttribute("title", value.name);
 						var i = document.createElement("i");
 						i.setAttribute("class", "fa " + value.icon);
 						i.style.fontFamily = "'Font Awesome 6 Free', 'Font Awesome 6 Brands'";
