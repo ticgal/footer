@@ -76,7 +76,9 @@ $(document).ready(function () {
 						var i = document.createElement("i");
 						i.setAttribute("class", "fa " + value.icon);
 						i.style.fontFamily = "'Font Awesome 6 Free', 'Font Awesome 6 Brands'";
-						var html = document.createTextNode(value.name);
+						var html = document.createElement("span");
+						html.setAttribute("class", "menu-label");
+						html.innerHTML = value.name;
 						a.appendChild(i);
 						a.appendChild(html);
 						li.appendChild(a);
