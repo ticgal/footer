@@ -2,7 +2,7 @@
    <name>Footer</name>
    <key>footer</key>
    <state>stable</state> <!-- stable | unstable | beta | alpha -->
-   <logo>https://raw.githubusercontent.com/ticgal/footer/multimedia/footer.png</logo>
+   <logo>https://raw.githubusercontent.com/ticgal/footer/multimedia/footer.png?token=GHSAT0AAAAAACSCPAVOO4MCV3N2FFAS6NQ2ZR5CRGA</logo>
    <description>
       <short>
 		    <en>Custom links</en>
