@@ -1,7 +1,7 @@
 /*
  -------------------------------------------------------------------------
  Footer plugin for GLPI
- Copyright (C) 2022 by the TICgal Team.
+ Copyright (C) 2024 by the TICgal Team.
  https://www.tic.gal
  -------------------------------------------------------------------------
  LICENSE
@@ -19,11 +19,11 @@
  --------------------------------------------------------------------------
  @package   Footer
  @author    the TICgal team
- @copyright Copyright (c) 2022 TICgal team
+ @copyright Copyright (c) 2024 TICgal team
  @license   AGPL License 3.0 or (at your option) any later version
 				http://www.gnu.org/licenses/agpl-3.0-standalone.html
  @link      https://www.tic.gal
- @since     2022
+ @since     2024
  ----------------------------------------------------------------------
 */
 
