@@ -1,6 +1,6 @@
 # Footer
 
-<img src="https://raw.githubusercontent.com/ticgal/footer/multimedia/footer.png?token=GHSAT0AAAAAACSCPAVOO4MCV3N2FFAS6NQ2ZR5CRGA" alt="Footer Logo" height="250px" width="250px" class="js-lazy-loaded">
+<img src="https://raw.githubusercontent.com/ticgal/footer/multimedia/footer.png" alt="Footer Logo" height="250px" width="250px" class="js-lazy-loaded">
 
 [![License](https://img.shields.io/badge/License-GNU%20AGPLv3-blue.svg?style=flat-square)](https://github.com/ticgal/footer/blob/master/LICENSE)
 [![Twitter](https://img.shields.io/badge/Twitter-TICGAL-blue.svg?style=flat-square)](https://twitter.com/ticgalcom)
