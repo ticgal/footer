@@ -27,11 +27,11 @@
  ----------------------------------------------------------------------
 */
 
-var ajax_url = CFG_GLPI.root_doc + "/" + GLPI_PLUGINS_PATH.footer + "/ajax/footer.php";
+var ajax_url_footer = CFG_GLPI.root_doc + "/" + GLPI_PLUGINS_PATH.footer + "/ajax/footer.php";
 $(document).ready(function () {
 	if (window.location === window.parent.location) {
 		jQuery.ajax({
-			url: ajax_url,
+			url: ajax_url_footer,
 			type: "POST",
 			data: {
 				"action": "get_footer"
@@ -57,7 +57,7 @@ $(document).ready(function () {
 			}
 		});
 		jQuery.ajax({
-			url: ajax_url,
+			url: ajax_url_footer,
 			type: "POST",
 			data: {
 				"action": "get_menu"
