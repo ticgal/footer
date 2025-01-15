@@ -9,7 +9,8 @@
 [![Localazy](https://img.shields.io/badge/Translate-Localazy-cyan)](https://localazy.com/p/footer#translations)
 
 
-A new GLPI plugin has been developed to add legal links to the GLPI footer, ensuring compliance with legal requirements. Additionally you can add custom links to your GLPI Menú.
+A new GLPI plugin has been developed to add legal links to the GLPI footer, ensuring compliance with legal requirements. Additionally, you can add custom links to your GLPI Menú.
+
 ### Setup
 Install it like any other GLPI plugin from Marketplace, or download and install it in the plugin folder.
 ### How to use

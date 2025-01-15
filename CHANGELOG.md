@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2 15/01/2025
+### Bugfixed
+- Fix marketplace page
+
 ## 1.1.1 09/05/2024
 ### Bugfixed
 - Fix menu collapseed
