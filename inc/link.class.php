@@ -1,82 +1,96 @@
 <?php
-/*
- -------------------------------------------------------------------------
- Footer plugin for GLPI
- Copyright (C) 2024 by the TICgal Team.
- https://www.tic.gal
- -------------------------------------------------------------------------
- LICENSE
- This file is part of the Footer plugin.
- Footer plugin is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
- Footer plugin is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- You should have received a copy of the GNU General Public License
- along with Footer. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
- @package   Footer
- @author    the TICgal team
- @copyright Copyright (c) 2024 TICgal team
- @license   AGPL License 3.0 or (at your option) any later version
-				http://www.gnu.org/licenses/agpl-3.0-standalone.html
- @link      https://www.tic.gal
- @since     2024
- ----------------------------------------------------------------------
-*/
 
-if (!defined('GLPI_ROOT')) {
-	die("Sorry. You can't access directly to this file");
-}
+/**
+ * -------------------------------------------------------------------------
+ * Footer plugin for GLPI
+ * Copyright (C) 2025 by the TICGAL Team.
+ * https://www.tic.gal
+ * -------------------------------------------------------------------------
+ * LICENSE
+ * This file is part of the Footer plugin.
+ * Footer plugin is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ * Footer plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with Footer. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @package   footer
+ * @author    the TICGAL team
+ * @copyright Copyright (c) 2024-2025 TICGAL team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * @link      https://www.tic.gal
+ * @since     2024
+ * -------------------------------------------------------------------------
+ */
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 class PluginFooterLink extends CommonDropdown
 {
-	static function getTypeName($nb = 0)
-	{
-		return _n('Footer link', 'Footer links', $nb, 'footer');
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypeName($nb = 0): string
+    {
+        return _n('Footer link', 'Footer links', $nb, 'footer');
+    }
 
-	function getAdditionalFields()
-	{
-		return [
-			[
-				'name' => 'url',
-				'label' => __('URL'),
-				'type' => 'text',
-				'list' => true
-			]
-		];
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getAdditionalFields(): array
+    {
+        return [
+            [
+                'name'  => 'url',
+                'label' => __('URL'),
+                'type'  => 'text',
+                'list'  => true,
+            ],
+        ];
+    }
 
-	function rawSearchOptions()
-	{
-		$tab = parent::rawSearchOptions();
+    /**
+     * {@inheritDoc}
+     */
+    public function rawSearchOptions(): array
+    {
+        $tab = parent::rawSearchOptions();
 
-		$tab[] = [
-			'id' => '23',
-			'table' => self::getTable(),
-			'field' => 'url',
-			'name' => __('URL'),
-			'datatype' => 'text'
-		];
+        $tab[] = [
+            'id'        => '23',
+            'table'     => self::getTable(),
+            'field'     => 'url',
+            'name'      => __('URL'),
+            'datatype'  => 'text',
+        ];
 
-		return $tab;
-	}
+        return $tab;
+    }
 
-	static function install(Migration $migration)
-	{
-		global $DB;
+    /**
+     * @param Migration $migration
+     *
+     * @return void
+     */
+    public static function install(Migration $migration): void
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
 
-		$default_charset = DBConnection::getDefaultCharset();
-		$default_collation = DBConnection::getDefaultCollation();
-		$default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
+        $default_charset    = DBConnection::getDefaultCharset();
+        $default_collation  = DBConnection::getDefaultCollation();
+        $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
-		$table = self::getTable();
-		if (!$DB->tableExists($table)) {
-			$query = "CREATE TABLE `$table` (
+        $table = self::getTable();
+        if (!$DB->tableExists($table)) {
+            $migration->displayMessage("Installing $table");
+            $query = "CREATE TABLE `$table` (
 				`id` INT {$default_key_sign} NOT NULL AUTO_INCREMENT,
 				`name` varchar(255) default NULL,
 				`url` varchar(255) default NULL,
@@ -92,19 +106,21 @@ class PluginFooterLink extends CommonDropdown
 				KEY `is_recursive` (`is_recursive`),
 				KEY `date_mod` (`date_mod`),
 				KEY `date_creation` (`date_creation`)
-			) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-			$DB->query($query) or die($DB->error());
-		}
-	}
+			) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
+            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
+        }
+    }
 
-	static function uninstall()
-	{
-		global $DB;
-
-		$table = self::getTable();
-		if ($DB->tableExists($table)) {
-			$query = "DROP TABLE IF EXISTS `$table`";
-			$DB->query($query) or die($DB->error());
-		}
-	}
+    /**
+     * @param Migration $migration
+     *
+     * @return void
+     */
+    public static function uninstall(Migration $migration): void
+    {
+        $table = self::getTable();
+        $migration->displayMessage("Uninstalling $table");
+        $migration->dropTable($table);
+    }
 }

@@ -1,150 +1,155 @@
 <?php
-/*
- -------------------------------------------------------------------------
- Footer plugin for GLPI
- Copyright (C) 2024 by the TICgal Team.
- https://www.tic.gal
- -------------------------------------------------------------------------
- LICENSE
- This file is part of the Footer plugin.
- Footer plugin is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 3 of the License, or
- (at your option) any later version.
- Footer plugin is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- You should have received a copy of the GNU General Public License
- along with Footer. If not, see <http://www.gnu.org/licenses/>.
- --------------------------------------------------------------------------
- @package   Footer
- @author    the TICgal team
- @copyright Copyright (c) 2024 TICgal team
- @license   AGPL License 3.0 or (at your option) any later version
-				http://www.gnu.org/licenses/agpl-3.0-standalone.html
- @link      https://www.tic.gal
- @since     2024
- ----------------------------------------------------------------------
-*/
 
-if (!defined('GLPI_ROOT')) {
-	die("Sorry. You can't access directly to this file");
-}
+/**
+ * -------------------------------------------------------------------------
+ * Footer plugin for GLPI
+ * Copyright (C) 2025 by the TICGAL Team.
+ * https://www.tic.gal
+ * -------------------------------------------------------------------------
+ * LICENSE
+ * This file is part of the Footer plugin.
+ * Footer plugin is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ * Footer plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with Footer. If not, see <http://www.gnu.org/licenses/>.
+ * -------------------------------------------------------------------------
+ * @package   footer
+ * @author    the TICGAL team
+ * @copyright Copyright (c) 2024-2025 TICGAL team
+ * @license   AGPL License 3.0 or (at your option) any later version
+ *            http://www.gnu.org/licenses/agpl-3.0-standalone.html
+ * @link      https://www.tic.gal
+ * @since     2024
+ * -------------------------------------------------------------------------
+ */
 
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 class PluginFooterConfig extends CommonDBTM
 {
-	static private $_instance = null;
+    public static $rightname = 'config';
 
-	public function __construct()
-	{
-		global $DB;
-		if ($DB->tableExists($this->getTable())) {
-			$this->getFromDB(1);
-		}
-	}
+    private static $instance = null;
 
-	static function canCreate()
-	{
-		return Session::haveRight('config', UPDATE);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function __construct()
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
 
-	static function canView()
-	{
-		return Session::haveRight('config', READ);
-	}
+        if ($DB->tableExists($this->getTable())) {
+            $this->getFromDB(1);
+        }
+    }
 
-	static function canUpdate()
-	{
-		return Session::haveRight('config', UPDATE);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public static function getTypeName($nb = 0): string
+    {
+        return 'Footer';
+    }
 
-	static function getTypeName($nb = 0)
-	{
-		return 'Footer';
-	}
+    /**
+     * @return PluginFooterConfig
+     */
+    public static function getInstance(): PluginFooterConfig
+    {
+        if (!isset(self::$instance)) {
+            self::$instance = new self();
+            if (!self::$instance->getFromDB(1)) {
+                self::$instance->getEmpty();
+            }
+        }
 
-	static function getInstance()
-	{
-		if (!isset(self::$_instance)) {
-			self::$_instance = new self();
-			if (!self::$_instance->getFromDB(1)) {
-				self::$_instance->getEmpty();
-			}
-		}
-		return self::$_instance;
-	}
+        return self::$instance;
+    }
 
-	static function getConfig($update = false)
-	{
-		static $config = null;
-		if (is_null(self::$config)) {
-			$config = new self();
-		}
-		if ($update) {
-			$config->getFromDB(1);
-		}
-		return $config;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
+    {
+        if ($item->getType() == 'Config') {
+            return self::getTypeName();
+        }
 
-	function getTabNameForItem(CommonGLPI $item, $withtemplate = 0)
-	{
-		if ($item->getType() == 'Config') {
-			return self::getTypeName();
-		}
-		return '';
-	}
+        return '';
+    }
 
-	static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0)
-	{
-		if ($item->getType() == 'Config') {
-			self::showConfigForm($item);
-		}
-		return true;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
+    {
+        if ($item->getType() == 'Config') {
+            return self::showConfigForm();
+        }
 
-	static function showConfigForm(){
-		global $CFG_GLPI;
+        return false;
+    }
 
-		$config = new self();
+    /**
+     * @return bool
+     */
+    public static function showConfigForm(): bool
+    {
+        /** @var array $CFG_GLPI */
+        global $CFG_GLPI;
 
-		$config->showFormHeader(['colspan' => 2]);
+        $config = new self();
 
-		echo "<div class='form-field row col-12 col-sm-12 mb-2'>";
-		echo "<label class='col-form-label col-xxl-2 text-xxl-end'>" . __('Fixed footer', 'footer') . "</label>";
-		echo "<div class='col-xxl-10  field-container'>";
+        $config->showFormHeader(['colspan' => 2]);
 
-		Dropdown::showYesNo('fixed', $config->fields['fixed']);
-		echo "</div>";
-		echo "</div>";
+        echo "<div class='form-field row col-12 col-sm-12 mb-2'>";
+        echo "<label class='col-form-label col-xxl-2 text-xxl-end'>" . __('Fixed footer', 'footer') . "</label>";
+        echo "<div class='col-xxl-10  field-container'>";
 
-		$config->showFormButtons(['colspan' => 4, 'candel' => false]);
+        Dropdown::showYesNo('fixed', $config->fields['fixed']);
+        echo "</div>";
+        echo "</div>";
 
-		return false;
-	}
+        $config->showFormButtons(['colspan' => 4, 'candel' => false]);
 
-	static function install(Migration $migration)
-	{
-		global $DB;
+        return true;
+    }
 
-		$default_charset = DBConnection::getDefaultCharset();
-		$default_collation = DBConnection::getDefaultCollation();
-		$default_key_sign = DBConnection::getDefaultPrimaryKeySignOption();
+    /**
+     * @param Migration $migration
+     *
+     * @return void
+     */
+    public static function install(Migration $migration): void
+    {
+        /** @var \DBmysql $DB */
+        global $DB;
 
-		$table = self::getTable();
-		$config = new self();
-		if (!$DB->tableExists($table)) {
-			$migration->displayMessage("Installing $table");
-			$query = "CREATE TABLE IF NOT EXISTS $table (
+        $default_charset    = DBConnection::getDefaultCharset();
+        $default_collation  = DBConnection::getDefaultCollation();
+        $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
+
+        $table = self::getTable();
+        $config = new self();
+        if (!$DB->tableExists($table)) {
+            $migration->displayMessage("Installing $table");
+            $query = "CREATE TABLE IF NOT EXISTS $table (
 				`id` int {$default_key_sign} NOT NULL auto_increment,
 				`fixed` tinyint NOT NULL DEFAULT '0',
 				PRIMARY KEY (`id`)
-				) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
-			$DB->query($query) or die($DB->error());
+				) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
+                COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $DB->doQuery($query);
 
-			$config->add([
-				'id' => 1,
-			]);
-		}
-	}
+            $config->add([
+                'id' => 1,
+            ]);
+        }
+    }
 }
