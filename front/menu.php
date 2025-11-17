@@ -31,5 +31,7 @@
 
 include("../../../inc/includes.php");
 
+Session::checkLoginUser();
+
 $dropdown = new PluginFooterMenu();
 include(GLPI_ROOT . "/front/dropdown.common.php");
