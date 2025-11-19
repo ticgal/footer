@@ -77,7 +77,7 @@ function plugin_init_footer(): void
             [
                 'file' => 'inc/menu.class.php',
                 'addtabon' => ['PluginFooterMenu'], // opcional
-            ]
+            ],
         );
 
         $PLUGIN_HOOKS['config_page']['footer'] = 'front/config.form.php';

@@ -32,12 +32,11 @@
 use Glpi\Controller\GenericFormController;
 use Symfony\Component\HttpFoundation\Request;
 
-include ('../../../inc/includes.php');
+include('../../../inc/includes.php');
 
 $request = Request::createFromGlobals();
 $request->attributes->set('class', PluginFooterMenu::class);
 
 $controller = new GenericFormController();
 
-// En vez de $response->send(), simplemente retorna la respuesta
 return $controller($request);

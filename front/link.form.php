@@ -32,7 +32,7 @@
 use Glpi\Controller\GenericFormController;
 use Symfony\Component\HttpFoundation\Request;
 
-include ('../../../inc/includes.php');
+include('../../../inc/includes.php');
 
 $request = Request::createFromGlobals();
 $request->attributes->set('class', PluginFooterLink::class);
