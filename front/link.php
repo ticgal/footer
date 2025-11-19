@@ -29,7 +29,13 @@
  * -------------------------------------------------------------------------
  */
 
-include("../../../inc/includes.php");
+use Glpi\Controller\GenericListController;
+use Symfony\Component\HttpFoundation\Request;
 
 $dropdown = new PluginFooterLink();
-include(GLPI_ROOT . "/front/dropdown.common.php");
+$request = new Request([], [], ['class' => get_class($dropdown)]);
+$controller = new GenericListController();
+$response = $controller($request);
+$html = $response->getContent();
+
+echo $html;

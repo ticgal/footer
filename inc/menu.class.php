@@ -40,6 +40,11 @@ class PluginFooterMenu extends CommonDropdown
         return _n('Menu link', 'Menu links', $nb, 'footer');
     }
 
+    public static function canView(): bool
+    {
+        return true;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -55,12 +60,12 @@ class PluginFooterMenu extends CommonDropdown
             [
                 'name'  => 'interface',
                 'label' => __('Interface'),
-                'type'  => '',
+                'type'  => 'dropdown',
             ],
             [
                 'name'  => 'icon',
                 'label' => __('Icon'),
-                'type'  => '',
+                'type'  => 'text',
                 'list'  => true,
             ],
             [
@@ -92,7 +97,7 @@ class PluginFooterMenu extends CommonDropdown
             'field'         => 'interface',
             'name'          => __('Interface'),
             'searchtype'    => ['equals', 'notequals'],
-            'datatype'      => 'specific',
+            'datatype'      => 'dropdown',
         ];
 
         $tab[] = [
@@ -130,13 +135,13 @@ class PluginFooterMenu extends CommonDropdown
                 echo Html::script('js/Forms/FaIconSelector.js');
                 echo Html::scriptBlock(
                     <<<JAVASCRIPT
-$(
-   function() {
-      var icon_selector = new GLPI.Forms.FaIconSelector(document.getElementById('{$selector_id}'));
-      icon_selector.init();
-   }
-);
-JAVASCRIPT
+                    $(
+                    function() {
+                        var icon_selector = new GLPI.Forms.FaIconSelector(document.getElementById('{$selector_id}'));
+                        icon_selector.init();
+                    }
+                    );
+                    JAVASCRIPT
                 );
                 break;
             default:

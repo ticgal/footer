@@ -31,7 +31,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_FOOTER_VERSION', '1.1.2');
+define('PLUGIN_FOOTER_VERSION', '2.0.0');
 define('PLUGIN_FOOTER_MIN_GLPI', '11.0');
 define('PLUGIN_FOOTER_MAX_GLPI', '11.9');
 
@@ -71,6 +71,14 @@ function plugin_init_footer(): void
         if (Session::getLoginUserID() && (!isset($_REQUEST['_in_modal']) || !$_REQUEST['_in_modal'])) {
             $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['public/footer.js'];
         }
+
+        Plugin::registerClass(
+            'PluginFooterMenu',
+            [
+                'file' => 'inc/menu.class.php',
+                'addtabon' => ['PluginFooterMenu'], // opcional
+            ]
+        );
 
         $PLUGIN_HOOKS['config_page']['footer'] = 'front/config.form.php';
         Plugin::registerClass('PluginFooterConfig', ['addtabon' => 'Config']);

@@ -29,9 +29,12 @@
  * -------------------------------------------------------------------------
  */
 
-include("../../../inc/includes.php");
+use Glpi\Controller\GenericListController;
+use Symfony\Component\HttpFoundation\Request;
 
-Session::checkLoginUser();
+$request = new Request([], [], ['class' => PluginFooterMenu::class]);
+$controller = new GenericListController();
+$response = $controller($request);
+$html = $response->getContent();
 
-$dropdown = new PluginFooterMenu();
-include(GLPI_ROOT . "/front/dropdown.common.php");
+echo $html;

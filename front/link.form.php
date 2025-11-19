@@ -29,7 +29,14 @@
  * -------------------------------------------------------------------------
  */
 
-include("../../../inc/includes.php");
+use Glpi\Controller\GenericFormController;
+use Symfony\Component\HttpFoundation\Request;
 
-$dropdown = new PluginFooterLink();
-include(GLPI_ROOT . "/front/dropdown.common.form.php");
+include ('../../../inc/includes.php');
+
+$request = Request::createFromGlobals();
+$request->attributes->set('class', PluginFooterLink::class);
+
+$controller = new GenericFormController();
+
+return $controller($request);
