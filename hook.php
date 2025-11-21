@@ -80,8 +80,8 @@ function plugin_footer_getDropdown(): array
 
     if ($plugin->isActivated("footer")) {
         return [
-            'PluginFooterLink' => PluginFooterLink::getTypeName(),
-            'PluginFooterMenu' => PluginFooterMenu::getTypeName(),
+            PluginFooterLink::class => PluginFooterLink::getTypeName(),
+            PluginFooterMenu::class => PluginFooterMenu::getTypeName(),
         ];
     }
 

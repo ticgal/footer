@@ -61,8 +61,11 @@ function plugin_version_footer(): array
 
 function plugin_init_footer(): void
 {
-    /** @var array $PLUGIN_HOOKS */
-    global $PLUGIN_HOOKS;
+    /**
+     * @var array $PLUGIN_HOOKS
+     * @var array $CFG_GLPI
+     */
+    global $PLUGIN_HOOKS, $CFG_GLPI;
 
     $PLUGIN_HOOKS['csrf_compliant']['footer'] = true;
 
@@ -72,15 +75,10 @@ function plugin_init_footer(): void
             $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['public/footer.js'];
         }
 
-        Plugin::registerClass(
-            'PluginFooterMenu',
-            [
-                'file' => 'inc/menu.class.php',
-                'addtabon' => ['PluginFooterMenu'], // opcional
-            ],
-        );
-
         $PLUGIN_HOOKS['config_page']['footer'] = 'front/config.form.php';
         Plugin::registerClass('PluginFooterConfig', ['addtabon' => 'Config']);
+
+        // Include $CFG_GLPI PluginFooterMenu table due incompatibility with autoload
+        $CFG_GLPI['glpiitemtypetables'][PluginFooterMenu::getTable()] = PluginFooterMenu::class;
     }
 }

@@ -73,7 +73,6 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
 
     echo json_encode($link);
 } elseif (isset($_POST['action']) && $_POST['action'] == 'get_menu') {
-    var_dump("a");
     $interface = 'helpdesk';
     if (isset($_SESSION['glpiactiveprofile']['interface'])) {
         $interface = $_SESSION['glpiactiveprofile']['interface'];
