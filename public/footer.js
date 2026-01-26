@@ -44,7 +44,7 @@ $(document).ready(function () {
 					var html_class = "footer d-flex justify-content-end align-items-center w-100";
 					var style_fixed = "";
 
-					if (data.config.fixed === true) {
+					if (data.config.fixed === 1) {
 						html_class += " position-fixed";
 						style_fixed = "bottom: 0; left: 0;";
 						$("body > div.page").css("padding-bottom", "50px");
@@ -68,7 +68,6 @@ $(document).ready(function () {
 			data: { "action": "get_menu" },
 			dataType: "json",
 			success: function (data) {
-				console.log("data: " + data);
 				if (data.length > 0) {
 					$.each(data, function (key, value) {
 						var li = document.createElement("li");
@@ -79,8 +78,7 @@ $(document).ready(function () {
 						a.setAttribute("target", value.target);
 						a.setAttribute("title", value.name);
 						var i = document.createElement("i");
-						i.setAttribute("class", "fa " + value.icon);
-						i.style.fontFamily = "'Font Awesome 6 Free', 'Font Awesome 6 Brands'";
+						i.setAttribute("class", value.icon);
 						var span = document.createElement("span");
 						span.setAttribute("class", "menu-label");
 						span.innerHTML = value.name;

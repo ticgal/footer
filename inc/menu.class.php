@@ -204,6 +204,11 @@ class PluginFooterMenu extends CommonDropdown
         ];
     }
 
+    public static function getIcon()
+    {
+        return PLUGIN_FOOTER_ICON;
+    }
+
     /**
      * @param Migration $migration
      *
@@ -243,8 +248,7 @@ class PluginFooterMenu extends CommonDropdown
                 KEY `is_recursive` (`is_recursive`),
                 KEY `date_mod` (`date_mod`),
                 KEY `date_creation` (`date_creation`)
-            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-            COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            ) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
         }
     }
