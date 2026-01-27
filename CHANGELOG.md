@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0 27/01/2026
+### Features
+- GLPI 11 support
+
 ## 1.1.2 15/01/2025
 ### Bugfixed
 - Fix marketplace page
