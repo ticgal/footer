@@ -78,7 +78,7 @@ class PluginFooterConfig extends CommonDBTM
     public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
     {
         if ($item->getType() == 'Config') {
-            return self::getTypeName();
+            return self::createTabEntry(self::getTypeName());
         }
 
         return '';
@@ -121,6 +121,11 @@ class PluginFooterConfig extends CommonDBTM
         return true;
     }
 
+    public static function getIcon()
+    {
+        return PLUGIN_FOOTER_ICON;
+    }
+
     /**
      * @param Migration $migration
      *
@@ -143,8 +148,7 @@ class PluginFooterConfig extends CommonDBTM
 				`id` int {$default_key_sign} NOT NULL auto_increment,
 				`fixed` tinyint NOT NULL DEFAULT '0',
 				PRIMARY KEY (`id`)
-				) ENGINE=InnoDB DEFAULT CHARSET={$default_charset}
-                COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+				) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
 
             $config->add([

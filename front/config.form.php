@@ -29,11 +29,9 @@
  * -------------------------------------------------------------------------
  */
 
-include("../../../inc/includes.php");
-
 $plugin = new Plugin();
 if (!$plugin->isInstalled('footer') || !$plugin->isActivated('footer')) {
-    Html::displayNotFoundError();
+    die();
 }
 
 Session::checkRight('config', UPDATE);

@@ -3,10 +3,9 @@ parameters:
         maximumNumberOfProcesses: 2
     level: 5
     bootstrapFiles:
-        - ../../inc/based_config.php
+        - ../../stubs/glpi_constants.php
+        - ../../vendor/autoload.php
     paths:
-        - ajax
-        - front
         - inc
         - hook.php
         - setup.php

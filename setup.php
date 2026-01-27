@@ -31,9 +31,10 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_FOOTER_VERSION', '1.1.2');
-define('PLUGIN_FOOTER_MIN_GLPI', '10.0.0');
-define('PLUGIN_FOOTER_MAX_GLPI', '10.1.99');
+define('PLUGIN_FOOTER_VERSION', '2.0.0-beta');
+define('PLUGIN_FOOTER_MIN_GLPI', '11.0');
+define('PLUGIN_FOOTER_MAX_GLPI', '11.9');
+define('PLUGIN_FOOTER_ICON', 'fa-solid fa-shoe-prints');
 
 /**
  * @return array
@@ -58,21 +59,27 @@ function plugin_version_footer(): array
 /**
  * @return void
  */
+
 function plugin_init_footer(): void
 {
-    /** @var array $PLUGIN_HOOKS */
-    global $PLUGIN_HOOKS;
+    /**
+     * @var array $PLUGIN_HOOKS
+     * @var array $CFG_GLPI
+     */
+    global $PLUGIN_HOOKS, $CFG_GLPI;
 
     $PLUGIN_HOOKS['csrf_compliant']['footer'] = true;
 
     $plugin = new Plugin();
     if ($plugin->isActivated('footer')) {
-        if (Session::getLoginUserID()) {
-            if (!isset($_REQUEST['_in_modal']) || !$_REQUEST['_in_modal']) {
-                $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['js/footer.js'];
-            }
+        if (Session::getLoginUserID() && (!isset($_REQUEST['_in_modal']) || !$_REQUEST['_in_modal'])) {
+            $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['public/footer.js'];
         }
+
         $PLUGIN_HOOKS['config_page']['footer'] = 'front/config.form.php';
         Plugin::registerClass('PluginFooterConfig', ['addtabon' => 'Config']);
+
+        // Include $CFG_GLPI PluginFooterMenu table due incompatibility with autoload
+        $CFG_GLPI['glpiitemtypetables'][PluginFooterMenu::getTable()] = PluginFooterMenu::class;
     }
 }

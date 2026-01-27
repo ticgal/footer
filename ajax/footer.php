@@ -32,13 +32,10 @@
 /** @var \DBmysql $DB */
 global $DB;
 
-include("../../../inc/includes.php");
 header("Content-Type: text/html; charset=UTF-8");
 Html::header_nocache();
 
 Session::checkLoginUser();
-
-use Glpi\Toolbox\Sanitizer;
 
 $config = new PluginFooterConfig();
 
@@ -63,7 +60,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
                 $_SESSION['glpilanguage'],
                 $data['url'],
             ),
-            'name' => Sanitizer::decodeHtmlSpecialChars(DropdownTranslation::getTranslatedValue(
+            'name' => HtmlSpecialChars(DropdownTranslation::getTranslatedValue(
                 $data['id'],
                 PluginFooterLink::getType(),
                 'name',
@@ -95,7 +92,7 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
                 $_SESSION['glpilanguage'],
                 $data['url'],
             ),
-            'name' => Sanitizer::decodeHtmlSpecialChars(DropdownTranslation::getTranslatedValue(
+            'name' => HtmlSpecialChars(DropdownTranslation::getTranslatedValue(
                 $data['id'],
                 PluginFooterMenu::getType(),
                 'name',
