@@ -8,7 +8,7 @@
          <en>Custom links</en>
       </short>
       <long>
-         <en>Footer is an uncomplicated plugin that enables the creation of footer and menu links. Its primary function is to display terms and conditions and other legal information for compliance purposes.</en>
+         <en>Footer is an uncomplicated plugin that lets you create a footer and menu links. Its primary function is to display terms and conditions and other legal information for compliance purposes.</en>
       </long>
    </description>
    <homepage>https://tic.gal/glpi/glpi-plugins/footer/</homepage>
@@ -19,6 +19,11 @@
       <author>TICgal</author>
    </authors>
    <versions>
+      <version>
+         <num>2.0.0</num>
+         <compatibility>~11.0.0</compatibility>
+         <download_url>https://github.com/ticgal/footer/releases/download/2.0.0/glpi-footer-2.0.1.tar.bz2</download_url>
+      </version>      
       <version>
          <num>1.1.1</num>
          <compatibility>~10.0.0</compatibility>
