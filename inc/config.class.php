@@ -156,4 +156,16 @@ class PluginFooterConfig extends CommonDBTM
             ]);
         }
     }
+
+    /**
+     * @param Migration $migration
+     * @return void
+     */
+    public static function uninstall(Migration $migration): void
+    {
+        $table = self::getTable();
+        $migration->displayMessage("Uninstalling $table");
+        $migration->dropTable($table);
+    }
+
 }
