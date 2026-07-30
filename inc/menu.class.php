@@ -29,6 +29,8 @@
  * -------------------------------------------------------------------------
  */
 
+use Glpi\Application\View\TemplateRenderer;
+
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 class PluginFooterMenu extends CommonDropdown
 {
@@ -125,22 +127,42 @@ class PluginFooterMenu extends CommonDropdown
                 );
                 break;
             case 'icon':
-                $icon = $this->fields[$field['name']];
-                $selector_id = 'icon_' . mt_rand();
-                echo Html::select(
-                    'icon',
-                    [$icon => $icon],
-                    ['id' => $selector_id, 'selected' => $icon, 'style' => 'width:100%;'],
+                $icon  = $this->fields[$field['name']];
+                $icons = self::getTablerIconsList();
+
+                $rand = Dropdown::showFromArray(
+                    $field['name'],
+                    $icons,
+                    [
+                        'value'               => $icon,
+                        'width'               => '100%',
+                        'display_emptychoice' => true,
+                    ]
                 );
-                echo Html::script('js/Forms/FaIconSelector.js');
+
                 echo Html::scriptBlock(
                     <<<JAVASCRIPT
-                    $(
-                    function() {
-                        var icon_selector = new GLPI.Forms.FaIconSelector(document.getElementById('{$selector_id}'));
-                        icon_selector.init();
-                    }
-                    );
+                    $(function() {
+                        var format_icon = function (opt) {
+                            if (!opt.id) {
+                                return opt.text;
+                            }
+                            return $(
+                                '<span><i class="' + opt.id + ' me-2"></i>' + opt.text + '</span>'
+                            );
+                        };
+
+                        var \$sel = $('#dropdown_{$field['name']}{$rand}');
+                        \$sel.select2('destroy');
+                        \$sel.select2({
+                            width: '100%',
+                            templateResult: format_icon,
+                            templateSelection: format_icon,
+                            escapeMarkup: function (m) {
+                                return m;
+                            }
+                        });
+                    });
                     JAVASCRIPT
                 );
                 break;
@@ -148,6 +170,64 @@ class PluginFooterMenu extends CommonDropdown
                 parent::displaySpecificTypeField($ID, $field, $options);
                 break;
         }
+    }
+
+    public static function getTablerIconsList(): array
+    {
+        static $icons = null;
+
+        if ($icons !== null) {
+            return $icons;
+        }
+
+        $icons = [];
+
+        $candidate_dirs = [
+            GLPI_ROOT . '/public/lib/tabler-icons/icons/outline',
+            GLPI_ROOT . '/public/lib/tabler-icons/icons',
+            GLPI_ROOT . '/lib/tabler-icons/icons/outline',
+            GLPI_ROOT . '/css/lib/tabler/icons',
+        ];
+
+        foreach ($candidate_dirs as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+
+            $files = glob($dir . '/*.svg');
+            if (empty($files)) {
+                continue;
+            }
+
+            foreach ($files as $file) {
+                $name  = basename($file, '.svg');
+                $class = 'ti ti-' . $name;
+                $label = ucfirst(str_replace('-', ' ', $name));
+                $icons[$class] = $label;
+            }
+
+            if (!empty($icons)) {
+                ksort($icons);
+                break;
+            }
+        }
+
+        return $icons;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function showForm($ID, $options = []): bool
+    {
+        $this->initForm($ID, $options);
+
+        TemplateRenderer::getInstance()->display('@footer/menu.form.html.twig', [
+            'item'   => $this,
+            'params' => $options,
+        ]);
+
+        return true;
     }
 
     /**

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 30/07/2026
+### Bugfixed
+- Icon Dropdown fixed in menu link
+
 ## 2.0.0 27/01/2026
 ### Features
 - GLPI 11 support

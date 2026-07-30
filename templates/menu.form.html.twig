@@ -1,0 +1,29 @@
+{% extends "generic_show_form.html.twig" %}
+{% import 'components/form/fields_macros.html.twig' as fields %}
+
+{% block more_fields %}
+    {{ fields.textField(
+        'url',
+        item.fields['url'],
+        __('URL')
+    ) }}
+
+    {{ fields.dropdownArrayField(
+        'interface',
+        item.fields['interface'],
+        call('PluginFooterMenu::getInterfaces'),
+        __('Interface')
+    ) }}
+
+    {{ fields.dropdownWebIcons(
+        'icon',
+        item.fields['icon'],
+        __('Icon')
+    ) }}
+
+    {{ fields.dropdownYesNo(
+        'is_blank',
+        item.fields['is_blank'],
+        __('New tab', 'footer')
+    ) }}
+{% endblock %}
