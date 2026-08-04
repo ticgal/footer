@@ -33,6 +33,16 @@ $(document).ready(function () {
 		return;
 	}
 
+	function footerGetIconClass(icon) {
+		if (!icon) {
+			return "";
+		}
+		if (icon.indexOf("ti-") === 0) {
+			return "ti " + icon;
+		}
+		return icon;
+	}
+
 	if (window.location === window.parent.location) {
 		$.ajax({
 			url: '/plugins/footer/ajax/footer.php',
@@ -78,7 +88,7 @@ $(document).ready(function () {
 						a.setAttribute("target", value.target);
 						a.setAttribute("title", value.name);
 						var i = document.createElement("i");
-						i.setAttribute("class", value.icon);
+						i.setAttribute("class", footerGetIconClass(value.icon));
 						var span = document.createElement("span");
 						span.setAttribute("class", "menu-label");
 						span.innerHTML = value.name;
