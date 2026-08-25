@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.2 25/08/2026
+### Bugfixed
+- Fa Icon fixed in menu link
+
 ## 2.0.1 30/07/2026
 ### Bugfixed
 - Icon Dropdown fixed in menu link
