@@ -40,6 +40,9 @@ $(document).ready(function () {
 		if (icon.indexOf("ti-") === 0) {
 			return "ti " + icon;
 		}
+		if (icon.indexOf("fa-") === 0) {
+			return "fa " + icon;
+		}
 		return icon;
 	}
 
