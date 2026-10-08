@@ -30,11 +30,19 @@
  */
 
 use Glpi\Plugin\Hooks;
+use GlpiPlugin\Footer\Config;
+use GlpiPlugin\Footer\Link;
+use GlpiPlugin\Footer\Menu;
 
-define('PLUGIN_FOOTER_VERSION', '2.0.2');
-define('PLUGIN_FOOTER_MIN_GLPI', '11.0');
-define('PLUGIN_FOOTER_MAX_GLPI', '11.9');
-define('PLUGIN_FOOTER_ICON', 'fa-solid fa-shoe-prints');
+define('PLUGIN_FOOTER_VERSION', '3.0.0-beta.1');
+define('PLUGIN_FOOTER_MIN_GLPI', '12.0.0');
+define('PLUGIN_FOOTER_MAX_GLPI', '12.1.0');
+define('PLUGIN_FOOTER_ICON', 'ti ti-shoe');
+define('PLUGIN_FOOTER_ITEMTYPES', [
+    Config::class,
+    Link::class,
+    Menu::class,
+]);
 
 /**
  * @return array
@@ -68,18 +76,16 @@ function plugin_init_footer(): void
      */
     global $PLUGIN_HOOKS, $CFG_GLPI;
 
-    $PLUGIN_HOOKS['csrf_compliant']['footer'] = true;
-
     $plugin = new Plugin();
     if ($plugin->isActivated('footer')) {
         if (Session::getLoginUserID() && (!isset($_REQUEST['_in_modal']) || !$_REQUEST['_in_modal'])) {
-            $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['public/footer.js'];
+            $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['footer.js'];
         }
 
         $PLUGIN_HOOKS['config_page']['footer'] = 'front/config.form.php';
-        Plugin::registerClass('PluginFooterConfig', ['addtabon' => 'Config']);
+        Plugin::registerClass(Config::class, ['addtabon' => 'Config']);
 
-        // Include $CFG_GLPI PluginFooterMenu table due incompatibility with autoload
-        $CFG_GLPI['glpiitemtypetables'][PluginFooterMenu::getTable()] = PluginFooterMenu::class;
+        // Include the Menu table in $CFG_GLPI due to incompatibility with autoload
+        $CFG_GLPI['glpiitemtypetables'][Menu::getTable()] = Menu::class;
     }
 }

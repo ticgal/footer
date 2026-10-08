@@ -29,101 +29,72 @@
  * -------------------------------------------------------------------------
  */
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
-class PluginFooterConfig extends CommonDBTM
+namespace GlpiPlugin\Footer;
+
+use CommonDropdown;
+use DBConnection;
+use Migration;
+
+// phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
+class Link extends CommonDropdown
 {
-    public static $rightname = 'config';
-
-    private static $instance = null;
-
-    /**
-     * {@inheritDoc}
-     */
-    public function __construct()
-    {
-        /** @var \DBmysql $DB */
-        global $DB;
-
-        if ($DB->tableExists($this->getTable())) {
-            $this->getFromDB(1);
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
     public static function getTypeName($nb = 0): string
     {
-        return 'Footer';
-    }
-
-    /**
-     * @return PluginFooterConfig
-     */
-    public static function getInstance(): PluginFooterConfig
-    {
-        if (!isset(self::$instance)) {
-            self::$instance = new self();
-            if (!self::$instance->getFromDB(1)) {
-                self::$instance->getEmpty();
-            }
-        }
-
-        return self::$instance;
+        return _n('Footer link', 'Footer links', $nb, 'footer');
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getTabNameForItem(CommonGLPI $item, $withtemplate = 0): string
+    public function getAdditionalFields(): array
     {
-        if ($item->getType() == 'Config') {
-            return self::createTabEntry(self::getTypeName());
-        }
-
-        return '';
+        return [
+            [
+                'name'  => 'url',
+                'label' => __('URL'),
+                'type'  => 'text',
+                'list'  => true,
+            ],
+        ];
     }
 
     /**
      * {@inheritDoc}
      */
-    public static function displayTabContentForItem(CommonGLPI $item, $tabnum = 1, $withtemplate = 0): bool
+    public function rawSearchOptions(): array
     {
-        if ($item->getType() == 'Config') {
-            return self::showConfigForm();
-        }
+        $tab = parent::rawSearchOptions();
 
-        return false;
-    }
+        $tab[] = [
+            'id'        => '23',
+            'table'     => self::getTable(),
+            'field'     => 'url',
+            'name'      => __('URL'),
+            'datatype'  => 'text',
+        ];
 
-    /**
-     * @return bool
-     */
-    public static function showConfigForm(): bool
-    {
-        /** @var array $CFG_GLPI */
-        global $CFG_GLPI;
-
-        $config = new self();
-
-        $config->showFormHeader(['colspan' => 2]);
-
-        echo "<div class='form-field row col-12 col-sm-12 mb-2'>";
-        echo "<label class='col-form-label col-xxl-2 text-xxl-end'>" . __('Fixed footer', 'footer') . "</label>";
-        echo "<div class='col-xxl-10  field-container'>";
-
-        Dropdown::showYesNo('fixed', $config->fields['fixed']);
-        echo "</div>";
-        echo "</div>";
-
-        $config->showFormButtons(['colspan' => 4, 'candel' => false]);
-
-        return true;
+        return $tab;
     }
 
     public static function getIcon()
     {
         return PLUGIN_FOOTER_ICON;
+    }
+
+    /**
+     * Only web, mail and phone links or local paths may be rendered as a link
+     * (rejects `javascript:`, `data:`, ...).
+     *
+     * @param string $url
+     *
+     * @return bool
+     */
+    public static function isSafeUrl(string $url): bool
+    {
+        return (bool) preg_match('~^(https?://|mailto:|tel:|/(?![/\\\\])|#)~i', trim($url));
     }
 
     /**
@@ -141,24 +112,32 @@ class PluginFooterConfig extends CommonDBTM
         $default_key_sign   = DBConnection::getDefaultPrimaryKeySignOption();
 
         $table = self::getTable();
-        $config = new self();
         if (!$DB->tableExists($table)) {
             $migration->displayMessage("Installing $table");
-            $query = "CREATE TABLE IF NOT EXISTS $table (
-				`id` int {$default_key_sign} NOT NULL auto_increment,
-				`fixed` tinyint NOT NULL DEFAULT '0',
-				PRIMARY KEY (`id`)
-				) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
+            $query = "CREATE TABLE `$table` (
+				`id` INT {$default_key_sign} NOT NULL AUTO_INCREMENT,
+				`name` varchar(255) default NULL,
+				`url` varchar(255) default NULL,
+				`comment` text,
+				`date_mod` TIMESTAMP NULL DEFAULT NULL,
+				`date_creation` TIMESTAMP NULL DEFAULT NULL,
+				`entities_id` int {$default_key_sign} NOT NULL DEFAULT '0',
+				`is_recursive` tinyint NOT NULL DEFAULT '0',
+				PRIMARY KEY (`id`),
+				KEY `name` (`name`),
+				KEY `url` (`url`),
+				KEY `entities_id` (`entities_id`),
+				KEY `is_recursive` (`is_recursive`),
+				KEY `date_mod` (`date_mod`),
+				KEY `date_creation` (`date_creation`)
+			) ENGINE=InnoDB DEFAULT CHARSET={$default_charset} COLLATE={$default_collation} ROW_FORMAT=DYNAMIC;";
             $DB->doQuery($query);
-
-            $config->add([
-                'id' => 1,
-            ]);
         }
     }
 
     /**
      * @param Migration $migration
+     *
      * @return void
      */
     public static function uninstall(Migration $migration): void
@@ -167,5 +146,4 @@ class PluginFooterConfig extends CommonDBTM
         $migration->displayMessage("Uninstalling $table");
         $migration->dropTable($table);
     }
-
 }

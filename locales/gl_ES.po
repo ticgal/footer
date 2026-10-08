@@ -10,14 +10,14 @@ msgstr ""
 "X-Generator: Localazy (https://localazy.com)\n"
 "Plural-Forms: nplurals=2; plural=(n==1) ? 0 : 1;\n"
 
-#: inc/config.class.php:114
+#: src/Config.php:129
 msgid "Fixed footer"
 msgstr "Pé de páxina fixo"
 
-#: inc/menu.class.php:64 inc/menu.class.php:95
+#: src/Menu.php:81 src/Menu.php:115 templates/menu.form.html.twig:27
 msgid "New tab"
 msgstr "Nova lapela"
 
-#: inc/menu.class.php:169
+#: src/Menu.php:188
 msgid "Both"
 msgstr "Ambos"

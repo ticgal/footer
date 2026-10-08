@@ -29,6 +29,44 @@
  * -------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Footer\Config;
+use GlpiPlugin\Footer\Link;
+use GlpiPlugin\Footer\Menu;
+
+/**
+ * Renames the itemtypes stored in the database (logs, display preferences, translations...)
+ * from the legacy class names (GLPI < 12 version of the plugin) to the namespaced ones.
+ *
+ * @param Migration $migration
+ *
+ * @return void
+ */
+function plugin_footer_migrate_itemtypes(Migration $migration): void
+{
+    /** @var \DBmysql $DB */
+    global $DB;
+
+    $legacy_itemtypes = [
+        'PluginFooterConfig' => Config::class,
+        'PluginFooterLink'   => Link::class,
+        'PluginFooterMenu'   => Menu::class,
+    ];
+
+    foreach ($legacy_itemtypes as $legacy => $itemtype) {
+        // Rows already stored with the new name (plugin used before the migration) would collide
+        // with the legacy ones on the unique index of the display preferences
+        $DB->doQuery(
+            "DELETE `legacy` FROM `glpi_displaypreferences` AS `legacy`
+            INNER JOIN `glpi_displaypreferences` AS `current`
+                ON `current`.`itemtype` = " . $DB->quote($itemtype) . "
+                AND `current`.`users_id` = `legacy`.`users_id`
+                AND `current`.`num` = `legacy`.`num`
+            WHERE `legacy`.`itemtype` = " . $DB->quote($legacy),
+        );
+        $migration->renameItemtype($legacy, $itemtype, false);
+    }
+}
+
 /**
  * @return bool
  */
@@ -36,18 +74,50 @@ function plugin_footer_install(): bool
 {
     $migration = new Migration(PLUGIN_FOOTER_VERSION);
 
-    foreach (glob(dirname(__FILE__) . '/inc/*') as $filepath) {
-        if (preg_match("/inc.(.+)\.class.php/", $filepath, $matches)) {
-            $classname = 'PluginFooter' . ucfirst($matches[1]);
-            include_once($filepath);
-            if (method_exists($classname, 'install')) {
-                $classname::install($migration);
-            }
-        }
+    plugin_footer_migrate_itemtypes($migration);
+
+    foreach (PLUGIN_FOOTER_ITEMTYPES as $classname) {
+        $classname::install($migration);
     }
     $migration->executeMigration();
 
     return true;
+}
+
+/**
+ * Removes the core data tied to the plugin itemtypes (translations, listing columns,
+ * history, saved searches), including the rows still stored with the legacy class names,
+ * so they do not come back as orphans when the plugin is installed again.
+ *
+ * @return void
+ */
+function plugin_footer_clean_core_data(): void
+{
+    /** @var \DBmysql $DB */
+    global $DB;
+
+    $itemtypes = array_merge(
+        PLUGIN_FOOTER_ITEMTYPES,
+        ['PluginFooterConfig', 'PluginFooterLink', 'PluginFooterMenu'],
+    );
+
+    $searches = array_column(
+        iterator_to_array($DB->request([
+            'SELECT' => 'id',
+            'FROM'   => 'glpi_savedsearches',
+            'WHERE'  => ['itemtype' => $itemtypes],
+        ])),
+        'id',
+    );
+    if ($searches !== []) {
+        $DB->delete('glpi_savedsearches_users', ['savedsearches_id' => $searches]);
+        $DB->delete('glpi_savedsearches_alerts', ['savedsearches_id' => $searches]);
+        $DB->delete('glpi_savedsearches', ['id' => $searches]);
+    }
+
+    foreach (['glpi_dropdowntranslations', 'glpi_displaypreferences', 'glpi_logs'] as $table) {
+        $DB->delete($table, ['itemtype' => $itemtypes]);
+    }
 }
 
 /**
@@ -57,15 +127,10 @@ function plugin_footer_uninstall(): bool
 {
     $migration = new Migration(PLUGIN_FOOTER_VERSION);
 
-    foreach (glob(dirname(__FILE__) . '/inc/*') as $filepath) {
-        if (preg_match("/inc.(.+)\.class.php/", $filepath, $matches)) {
-            $classname = 'PluginFooter' . ucfirst($matches[1]);
-            include_once($filepath);
-            if (method_exists($classname, 'uninstall')) {
-                $classname::uninstall($migration);
-            }
-        }
+    foreach (PLUGIN_FOOTER_ITEMTYPES as $classname) {
+        $classname::uninstall($migration);
     }
+    plugin_footer_clean_core_data();
     $migration->executeMigration();
 
     return true;
@@ -80,8 +145,8 @@ function plugin_footer_getDropdown(): array
 
     if ($plugin->isActivated("footer")) {
         return [
-            PluginFooterLink::class => PluginFooterLink::getTypeName(),
-            PluginFooterMenu::class => PluginFooterMenu::getTypeName(),
+            Link::class => Link::getTypeName(),
+            Menu::class => Menu::getTypeName(),
         ];
     }
 

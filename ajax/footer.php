@@ -29,20 +29,24 @@
  * -------------------------------------------------------------------------
  */
 
+use GlpiPlugin\Footer\Config;
+use GlpiPlugin\Footer\Link;
+use GlpiPlugin\Footer\Menu;
+
 /** @var \DBmysql $DB */
 global $DB;
 
-header("Content-Type: text/html; charset=UTF-8");
+header("Content-Type: application/json; charset=UTF-8");
 Html::header_nocache();
 
 Session::checkLoginUser();
 
-$config = new PluginFooterConfig();
+$config = new Config();
 
 if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
     $query = [
-        'FROM' => PluginFooterLink::getTable(),
-        'WHERE' => getEntitiesRestrictCriteria(PluginFooterLink::getTable(), '', '', true),
+        'FROM' => Link::getTable(),
+        'WHERE' => getEntitiesRestrictCriteria(Link::getTable(), '', '', true),
     ];
 
     $link = [
@@ -52,56 +56,64 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
         'links' => [],
     ];
     foreach ($DB->request($query) as $data) {
+        $url = DropdownTranslation::getTranslatedValue(
+            $data['id'],
+            Link::getType(),
+            'url',
+            $_SESSION['glpilanguage'],
+            $data['url'],
+        );
+        if (!Link::isSafeUrl((string) $url)) {
+            continue;
+        }
         $link['links'][] = [
-            'url' => DropdownTranslation::getTranslatedValue(
+            'url' => $url,
+            'name' => DropdownTranslation::getTranslatedValue(
                 $data['id'],
-                PluginFooterLink::getType(),
-                'url',
-                $_SESSION['glpilanguage'],
-                $data['url'],
-            ),
-            'name' => HtmlSpecialChars(DropdownTranslation::getTranslatedValue(
-                $data['id'],
-                PluginFooterLink::getType(),
+                Link::getType(),
                 'name',
                 $_SESSION['glpilanguage'],
                 $data['name'],
-            )),
+            ),
         ];
     }
 
-    echo json_encode($link);
+    echo json_encode($link, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 } elseif (isset($_POST['action']) && $_POST['action'] == 'get_menu') {
     $interface = 'helpdesk';
     if (isset($_SESSION['glpiactiveprofile']['interface'])) {
         $interface = $_SESSION['glpiactiveprofile']['interface'];
     }
     $query = [
-        'FROM' => PluginFooterMenu::getTable(),
+        'FROM' => Menu::getTable(),
         'WHERE' => [
             'interface' => ['both', $interface],
-        ] + getEntitiesRestrictCriteria(PluginFooterMenu::getTable(), '', '', true),
+        ] + getEntitiesRestrictCriteria(Menu::getTable(), '', '', true),
     ];
     $link = [];
     foreach ($DB->request($query) as $data) {
+        $url = DropdownTranslation::getTranslatedValue(
+            $data['id'],
+            Menu::getType(),
+            'url',
+            $_SESSION['glpilanguage'],
+            $data['url'],
+        );
+        if (!Link::isSafeUrl((string) $url)) {
+            continue;
+        }
         $link[] = [
-            'url' => DropdownTranslation::getTranslatedValue(
+            'url' => $url,
+            'name' => DropdownTranslation::getTranslatedValue(
                 $data['id'],
-                PluginFooterMenu::getType(),
-                'url',
-                $_SESSION['glpilanguage'],
-                $data['url'],
-            ),
-            'name' => HtmlSpecialChars(DropdownTranslation::getTranslatedValue(
-                $data['id'],
-                PluginFooterMenu::getType(),
+                Menu::getType(),
                 'name',
                 $_SESSION['glpilanguage'],
                 $data['name'],
-            )),
+            ),
             'icon' => $data['icon'],
             'target' => ($data['is_blank']) ? '_blank' : '_self',
         ];
     }
-    echo json_encode($link);
+    echo json_encode($link, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 }

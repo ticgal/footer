@@ -28,10 +28,12 @@
  */
 
 $(document).ready(function () {
-	if (typeof CFG_GLPI === "undefined" || typeof GLPI_PLUGINS_PATH === "undefined") {
+	if (typeof CFG_GLPI === "undefined") {
 		console.error("GLPI variables not defined yet. Cannot initialize footer AJAX URL.");
 		return;
 	}
+
+	var footerAjaxUrl = CFG_GLPI.root_doc + "/plugins/footer/ajax/footer.php";
 
 	function footerGetIconClass(icon) {
 		if (!icon) {
@@ -48,35 +50,49 @@ $(document).ready(function () {
 
 	if (window.location === window.parent.location) {
 		$.ajax({
-			url: '/plugins/footer/ajax/footer.php',
+			url: footerAjaxUrl,
 			type: "POST",
 			data: { "action": "get_footer" },
 			dataType: "json",
 			success: function (data) {
 				if (data.links.length > 0) {
-					var html_class = "footer d-flex justify-content-end align-items-center w-100";
-					var style_fixed = "";
+					var footer = $("<footer>", {
+						id: "pluginfooter",
+						"class": "footer d-flex justify-content-end align-items-center w-100"
+					}).css({
+						"z-index": 999,
+						"font-family": "var(--tblr-body-font-family)",
+						"background-color": "#f8f9fa",
+						"padding": "10px 20px",
+						"border-top": "1px solid #ddd"
+					});
 
 					if (data.config.fixed === 1) {
-						html_class += " position-fixed";
-						style_fixed = "bottom: 0; left: 0;";
+						footer.addClass("position-fixed").css({ bottom: 0, left: 0 });
 						$("body > div.page").css("padding-bottom", "50px");
 					}
 
-					var html = "<footer id='pluginfooter' class='" + html_class + "' style='z-index: 999; font-family: var(--tblr-body-font-family); " + style_fixed + " background-color: #f8f9fa; padding: 10px 20px; border-top: 1px solid #ddd;'>" +
-						"<ul class='nav justify-content-end mb-0' style='font-size: small; list-style: none;'>";
+					var list = $("<ul>", { "class": "nav justify-content-end mb-0" })
+						.css({ "font-size": "small", "list-style": "none" });
 
 					$.each(data.links, function (key, value) {
-						html += "<li class='nav-item d-inline-block mx-2'><a class='nav-link p-1' href='" + value.url + "' target='_blank'>" + value.name + "</a></li>";
+						var link = $("<a>", {
+							"class": "nav-link p-1",
+							href: value.url,
+							target: "_blank",
+							rel: "noopener noreferrer"
+						}).text(value.name);
+						list.append($("<li>", { "class": "nav-item d-inline-block mx-2" }).append(link));
 					});
-					html += "</ul></footer>";
-					$("body").append(html);
+
+					footer.append(list);
+					$("body").append(footer);
 				}
 			}
 		});
 
 		$.ajax({
-			url: '/plugins/footer/ajax/footer.php',
+			url: footerAjaxUrl,
 			type: "POST",
 			data: { "action": "get_menu" },
 			dataType: "json",
@@ -89,12 +105,15 @@ $(document).ready(function () {
 						a.setAttribute("class", "nav-link");
 						a.setAttribute("href", value.url);
 						a.setAttribute("target", value.target);
+						if (value.target === "_blank") {
+							a.setAttribute("rel", "noopener noreferrer");
+						}
 						a.setAttribute("title", value.name);
 						var i = document.createElement("i");
 						i.setAttribute("class", footerGetIconClass(value.icon));
 						var span = document.createElement("span");
 						span.setAttribute("class", "menu-label");
-						span.innerHTML = value.name;
+						span.textContent = value.name;
 						a.appendChild(i);
 						a.appendChild(span);
 						li.appendChild(a);

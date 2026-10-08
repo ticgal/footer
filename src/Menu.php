@@ -29,10 +29,16 @@
  * -------------------------------------------------------------------------
  */
 
+namespace GlpiPlugin\Footer;
+
+use CommonDropdown;
+use DBConnection;
+use Dropdown;
 use Glpi\Application\View\TemplateRenderer;
+use Migration;
 
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
-class PluginFooterMenu extends CommonDropdown
+class Menu extends CommonDropdown
 {
     /**
      * {@inheritDoc}
@@ -40,11 +46,6 @@ class PluginFooterMenu extends CommonDropdown
     public static function getTypeName($nb = 0): string
     {
         return _n('Menu link', 'Menu links', $nb, 'footer');
-    }
-
-    public static function canView(): bool
-    {
-        return true;
     }
 
     /**
@@ -116,103 +117,36 @@ class PluginFooterMenu extends CommonDropdown
     /**
      * {@inheritDoc}
      */
-    public function displaySpecificTypeField($ID, $field = [], array $options = []): void
+    public function prepareInputForAdd($input)
     {
-        switch ($field['name']) {
-            case 'interface':
-                Dropdown::showFromArray(
-                    $field['name'],
-                    self::getInterfaces(),
-                    ['value' => $this->fields[$field['name']]],
-                );
-                break;
-            case 'icon':
-                $icon  = $this->fields[$field['name']];
-                $icons = self::getTablerIconsList();
-
-                $rand = Dropdown::showFromArray(
-                    $field['name'],
-                    $icons,
-                    [
-                        'value'               => $icon,
-                        'width'               => '100%',
-                        'display_emptychoice' => true,
-                    ]
-                );
-
-                echo Html::scriptBlock(
-                    <<<JAVASCRIPT
-                    $(function() {
-                        var format_icon = function (opt) {
-                            if (!opt.id) {
-                                return opt.text;
-                            }
-                            return $(
-                                '<span><i class="' + opt.id + ' me-2"></i>' + opt.text + '</span>'
-                            );
-                        };
-
-                        var \$sel = $('#dropdown_{$field['name']}{$rand}');
-                        \$sel.select2('destroy');
-                        \$sel.select2({
-                            width: '100%',
-                            templateResult: format_icon,
-                            templateSelection: format_icon,
-                            escapeMarkup: function (m) {
-                                return m;
-                            }
-                        });
-                    });
-                    JAVASCRIPT
-                );
-                break;
-            default:
-                parent::displaySpecificTypeField($ID, $field, $options);
-                break;
+        if (!$this->isValidInterface($input)) {
+            return false;
         }
+
+        return parent::prepareInputForAdd($input);
     }
 
-    public static function getTablerIconsList(): array
+    /**
+     * {@inheritDoc}
+     */
+    public function prepareInputForUpdate($input)
     {
-        static $icons = null;
-
-        if ($icons !== null) {
-            return $icons;
+        if (!$this->isValidInterface($input)) {
+            return false;
         }
 
-        $icons = [];
+        return parent::prepareInputForUpdate($input);
+    }
 
-        $candidate_dirs = [
-            GLPI_ROOT . '/public/lib/tabler-icons/icons/outline',
-            GLPI_ROOT . '/public/lib/tabler-icons/icons',
-            GLPI_ROOT . '/lib/tabler-icons/icons/outline',
-            GLPI_ROOT . '/css/lib/tabler/icons',
-        ];
-
-        foreach ($candidate_dirs as $dir) {
-            if (!is_dir($dir)) {
-                continue;
-            }
-
-            $files = glob($dir . '/*.svg');
-            if (empty($files)) {
-                continue;
-            }
-
-            foreach ($files as $file) {
-                $name  = basename($file, '.svg');
-                $class = 'ti ti-' . $name;
-                $label = ucfirst(str_replace('-', ' ', $name));
-                $icons[$class] = $label;
-            }
-
-            if (!empty($icons)) {
-                ksort($icons);
-                break;
-            }
-        }
-
-        return $icons;
+    /**
+     * @param array $input
+     *
+     * @return bool
+     */
+    private function isValidInterface(array $input): bool
+    {
+        return !isset($input['interface'])
+            || array_key_exists($input['interface'], self::getInterfaces());
     }
 
     /**
@@ -223,8 +157,9 @@ class PluginFooterMenu extends CommonDropdown
         $this->initForm($ID, $options);
 
         TemplateRenderer::getInstance()->display('@footer/menu.form.html.twig', [
-            'item'   => $this,
-            'params' => $options,
+            'item'       => $this,
+            'params'     => $options,
+            'interfaces' => self::getInterfaces(),
         ]);
 
         return true;

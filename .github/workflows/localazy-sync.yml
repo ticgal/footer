@@ -1,0 +1,26 @@
+name: Localazy Sync
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  localazy-sync:
+    # Evita sincronizar pull requests que aún están en draft.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
+    uses: TICGAL-Dev/.github-private/.github/workflows/web_localazy-sync.yml@v1
+    secrets:
+      LOCALAZY_READ_KEY: ${{ secrets.LOCALAZY_READ_KEY }}
+      LOCALAZY_WRITE_KEY: ${{ secrets.LOCALAZY_WRITE_KEY }}
