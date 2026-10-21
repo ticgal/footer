@@ -31,7 +31,7 @@
 
 use Glpi\Plugin\Hooks;
 
-define('PLUGIN_FOOTER_VERSION', '2.0.2');
+define('PLUGIN_FOOTER_VERSION', '2.0.3-beta1');
 define('PLUGIN_FOOTER_MIN_GLPI', '11.0');
 define('PLUGIN_FOOTER_MAX_GLPI', '11.9');
 define('PLUGIN_FOOTER_ICON', 'fa-solid fa-shoe-prints');
@@ -74,6 +74,11 @@ function plugin_init_footer(): void
     if ($plugin->isActivated('footer')) {
         if (Session::getLoginUserID() && (!isset($_REQUEST['_in_modal']) || !$_REQUEST['_in_modal'])) {
             $PLUGIN_HOOKS[Hooks::ADD_JAVASCRIPT]['footer'] = ['public/footer.js'];
+        }
+
+        // Core 11.0.x does not check rights in front/dropdowntranslation.form.php
+        foreach ([Hooks::PRE_ITEM_ADD, Hooks::PRE_ITEM_UPDATE, Hooks::PRE_ITEM_PURGE] as $hook) {
+            $PLUGIN_HOOKS[$hook]['footer'] = [DropdownTranslation::class => 'plugin_footer_pre_translation_write'];
         }
 
         $PLUGIN_HOOKS['config_page']['footer'] = 'front/config.form.php';

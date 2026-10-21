@@ -79,6 +79,61 @@ class PluginFooterLink extends CommonDropdown
     }
 
     /**
+     * Whether a URL is safe to render in an href: empty, http(s), or a
+     * site-relative path starting with a single slash. Anything else
+     * (javascript:, data:, quotes, whitespace, protocol-relative...) is refused.
+     *
+     * @param mixed $url
+     *
+     * @return bool
+     */
+    public static function isSafeUrl($url): bool
+    {
+        if ($url === null || $url === '') {
+            return true;
+        }
+        if (!is_string($url) || preg_match('/[\x00-\x20"\'<>`\\\\\x7f]/', $url)) {
+            return false;
+        }
+        if ($url[0] === '/') {
+            return !isset($url[1]) || $url[1] !== '/';
+        }
+
+        return Toolbox::isValidWebUrl($url);
+    }
+
+    /**
+     * @param array $input
+     *
+     * @return array|false
+     */
+    private function checkUrlInput(array $input)
+    {
+        if (isset($input['url']) && !self::isSafeUrl($input['url'])) {
+            Session::addMessageAfterRedirect(
+                __s('The URL must be http(s) or a relative path starting with "/"', 'footer'),
+                false,
+                ERROR,
+            );
+            return false;
+        }
+
+        return $input;
+    }
+
+    public function prepareInputForAdd($input)
+    {
+        $input = parent::prepareInputForAdd($input);
+        return is_array($input) ? $this->checkUrlInput($input) : $input;
+    }
+
+    public function prepareInputForUpdate($input)
+    {
+        $input = parent::prepareInputForUpdate($input);
+        return is_array($input) ? $this->checkUrlInput($input) : $input;
+    }
+
+    /**
      * @param Migration $migration
      *
      * @return void
@@ -126,5 +181,20 @@ class PluginFooterLink extends CommonDropdown
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");
         $migration->dropTable($table);
+
+        /** @var \DBmysql $DB */
+        global $DB;
+        foreach (['glpi_dropdowntranslations', 'glpi_logs', 'glpi_displaypreferences'] as $t) {
+            $DB->delete($t, ['itemtype' => self::class]);
+        }
+        $searches = array_column(iterator_to_array(
+            $DB->request(['SELECT' => 'id', 'FROM' => 'glpi_savedsearches', 'WHERE' => ['itemtype' => self::class]]),
+            false,
+        ), 'id');
+        if ($searches) {
+            $DB->delete('glpi_savedsearches_users', ['savedsearches_id' => $searches]);
+            $DB->delete('glpi_savedsearches_alerts', ['savedsearches_id' => $searches]);
+            $DB->delete('glpi_savedsearches', ['id' => $searches]);
+        }
     }
 }

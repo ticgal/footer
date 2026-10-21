@@ -32,9 +32,11 @@
 /** @var \DBmysql $DB */
 global $DB;
 
-header("Content-Type: text/html; charset=UTF-8");
+header("Content-Type: application/json; charset=UTF-8");
 Html::header_nocache();
 
+// Footer and menu links are designed for every authenticated user; menu
+// entries are filtered by the interface of the active profile.
 Session::checkLoginUser();
 
 $config = new PluginFooterConfig();
@@ -53,20 +55,20 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
     ];
     foreach ($DB->request($query) as $data) {
         $link['links'][] = [
-            'url' => DropdownTranslation::getTranslatedValue(
+            'url' => PluginFooterLink::isSafeUrl($url = DropdownTranslation::getTranslatedValue(
                 $data['id'],
                 PluginFooterLink::getType(),
                 'url',
                 $_SESSION['glpilanguage'],
                 $data['url'],
-            ),
-            'name' => HtmlSpecialChars(DropdownTranslation::getTranslatedValue(
+            )) ? $url : '',
+            'name' => DropdownTranslation::getTranslatedValue(
                 $data['id'],
                 PluginFooterLink::getType(),
                 'name',
                 $_SESSION['glpilanguage'],
                 $data['name'],
-            )),
+            ),
         ];
     }
 
@@ -85,21 +87,21 @@ if (isset($_POST['action']) && $_POST['action'] == 'get_footer') {
     $link = [];
     foreach ($DB->request($query) as $data) {
         $link[] = [
-            'url' => DropdownTranslation::getTranslatedValue(
+            'url' => PluginFooterLink::isSafeUrl($url = DropdownTranslation::getTranslatedValue(
                 $data['id'],
                 PluginFooterMenu::getType(),
                 'url',
                 $_SESSION['glpilanguage'],
                 $data['url'],
-            ),
-            'name' => HtmlSpecialChars(DropdownTranslation::getTranslatedValue(
+            )) ? $url : '',
+            'name' => DropdownTranslation::getTranslatedValue(
                 $data['id'],
                 PluginFooterMenu::getType(),
                 'name',
                 $_SESSION['glpilanguage'],
                 $data['name'],
-            )),
-            'icon' => $data['icon'],
+            ),
+            'icon' => preg_match(PluginFooterMenu::ICON_PATTERN, (string) $data['icon']) ? $data['icon'] : '',
             'target' => ($data['is_blank']) ? '_blank' : '_self',
         ];
     }

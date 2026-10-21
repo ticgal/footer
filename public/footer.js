@@ -34,21 +34,33 @@ $(document).ready(function () {
 	}
 
 	function footerGetIconClass(icon) {
-		if (!icon) {
+		if (typeof icon !== "string" || !/^(ti ti-|ti-|fa-(solid|regular|brands) fa-|fas fa-|far fa-|fab fa-|fa fa-|fa-)[a-z0-9-]+$/.test(icon)) {
 			return "";
 		}
 		if (icon.indexOf("ti-") === 0) {
 			return "ti " + icon;
 		}
-		if (icon.indexOf("fa-") === 0) {
+		if (icon.indexOf("fa-") === 0 && icon.indexOf("fa-solid ") !== 0 && icon.indexOf("fa-regular ") !== 0 && icon.indexOf("fa-brands ") !== 0) {
 			return "fa " + icon;
 		}
 		return icon;
 	}
 
+	function footerIsSafeUrl(url) {
+		if (typeof url !== "string" || url === "") {
+			return false;
+		}
+		if (url.charAt(0) === "/") {
+			return url.charAt(1) !== "/" && !/[\\\s]/.test(url);
+		}
+		return /^https?:\/\/[^\s"'<>`\\]+$/i.test(url);
+	}
+
+	var ajaxUrl = CFG_GLPI.root_doc + GLPI_PLUGINS_PATH.footer + "/ajax/footer.php";
+
 	if (window.location === window.parent.location) {
 		$.ajax({
-			url: '/plugins/footer/ajax/footer.php',
+			url: ajaxUrl,
 			type: "POST",
 			data: { "action": "get_footer" },
 			dataType: "json",
@@ -63,20 +75,31 @@ $(document).ready(function () {
 						$("body > div.page").css("padding-bottom", "50px");
 					}
 
-					var html = "<footer id='pluginfooter' class='" + html_class + "' style='z-index: 999; font-family: var(--tblr-body-font-family); " + style_fixed + " background-color: #f8f9fa; padding: 10px 20px; border-top: 1px solid #ddd;'>" +
-						"<ul class='nav justify-content-end mb-0' style='font-size: small; list-style: none;'>";
+					var footer = $("<footer>", {
+						id: "pluginfooter",
+						"class": html_class,
+						style: "z-index: 999; font-family: var(--tblr-body-font-family); " + style_fixed + " background-color: #f8f9fa; padding: 10px 20px; border-top: 1px solid #ddd;"
+					});
+					var ul = $("<ul>", {
+						"class": "nav justify-content-end mb-0",
+						style: "font-size: small; list-style: none;"
+					});
 
 					$.each(data.links, function (key, value) {
-						html += "<li class='nav-item d-inline-block mx-2'><a class='nav-link p-1' href='" + value.url + "' target='_blank'>" + value.name + "</a></li>";
+						var a = $("<a>", {"class": "nav-link p-1", target: "_blank", rel: "noopener noreferrer"}).text(value.name);
+						if (footerIsSafeUrl(value.url)) {
+							a.attr("href", value.url);
+						}
+						$("<li>", {"class": "nav-item d-inline-block mx-2"}).append(a).appendTo(ul);
 					});
-					html += "</ul></footer>";
-					$("body").append(html);
+					footer.append(ul);
+					$("body").append(footer);
 				}
 			}
 		});
 
 		$.ajax({
-			url: '/plugins/footer/ajax/footer.php',
+			url: ajaxUrl,
 			type: "POST",
 			data: { "action": "get_menu" },
 			dataType: "json",
@@ -87,14 +110,19 @@ $(document).ready(function () {
 						li.setAttribute("class", "nav-item dropdown");
 						var a = document.createElement("a");
 						a.setAttribute("class", "nav-link");
-						a.setAttribute("href", value.url);
+						if (footerIsSafeUrl(value.url)) {
+							a.setAttribute("href", value.url);
+						}
 						a.setAttribute("target", value.target);
+						if (value.target === "_blank") {
+							a.setAttribute("rel", "noopener noreferrer");
+						}
 						a.setAttribute("title", value.name);
 						var i = document.createElement("i");
 						i.setAttribute("class", footerGetIconClass(value.icon));
 						var span = document.createElement("span");
 						span.setAttribute("class", "menu-label");
-						span.innerHTML = value.name;
+						span.textContent = value.name;
 						a.appendChild(i);
 						a.appendChild(span);
 						li.appendChild(a);
