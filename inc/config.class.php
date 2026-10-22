@@ -173,5 +173,4 @@ class PluginFooterConfig extends CommonDBTM
             $DB->delete($t, ['itemtype' => self::class]);
         }
     }
-
 }
