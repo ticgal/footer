@@ -72,6 +72,51 @@ function plugin_footer_uninstall(): bool
 }
 
 /**
+ * Only users able to update the translated link may add, update or purge its
+ * translations, and translated URLs must be safe.
+ *
+ * @param DropdownTranslation $translation
+ *
+ * @return void
+ */
+function plugin_footer_pre_translation_write(DropdownTranslation $translation): void
+{
+    $types   = [PluginFooterLink::class, PluginFooterMenu::class];
+    $input   = is_array($translation->input) ? $translation->input : [];
+    $targets = [];
+
+    if (!empty($translation->fields['itemtype'])) {
+        $targets[] = [$translation->fields['itemtype'], (int) $translation->fields['items_id']];
+    }
+    if (isset($input['itemtype'])) {
+        $targets[] = [$input['itemtype'], (int) ($input['items_id'] ?? 0)];
+    }
+
+    $is_ours = false;
+    foreach ($targets as [$itemtype, $items_id]) {
+        if (!in_array($itemtype, $types, true)) {
+            continue;
+        }
+        $is_ours = true;
+        $item    = new $itemtype();
+        if (!$item->can($items_id, UPDATE)) {
+            $translation->input = false;
+            return;
+        }
+    }
+
+    $field = $input['field'] ?? $translation->fields['field'] ?? '';
+    if (
+        $is_ours
+        && $field === 'url'
+        && array_key_exists('value', $input)
+        && !PluginFooterLink::isSafeUrl($input['value'])
+    ) {
+        $translation->input = false;
+    }
+}
+
+/**
  * @return array
  */
 function plugin_footer_getDropdown(): array

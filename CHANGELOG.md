@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.3
+### Security
+- Validate URLs (http(s) or relative path) in footer and menu links, and in their translations
+- Build footer and menu DOM without HTML concatenation
+- Require update right on the link to add, update or purge its translations
+- Validate menu icon class
+- Clean logs, display preferences, saved searches and translations on uninstall
+
 ## 2.0.2 25/08/2026
 ### Bugfixed
 - Fa Icon fixed in menu link

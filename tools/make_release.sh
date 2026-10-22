@@ -140,6 +140,7 @@ FILES_TO_DELETE=(
     "PULL_REQUEST_TEMPLATE.md"
     # development folders
     "tools"
+    "docs"
     "tests"
     "phpunit"
     # CI/CD config files

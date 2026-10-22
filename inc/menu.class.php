@@ -34,17 +34,14 @@ use Glpi\Application\View\TemplateRenderer;
 // phpcs:disable PSR1.Classes.ClassDeclaration.MissingNamespace
 class PluginFooterMenu extends CommonDropdown
 {
+    public const ICON_PATTERN = '/^(ti ti-|ti-|fa-(solid|regular|brands) fa-|fas fa-|far fa-|fab fa-|fa fa-|fa-)[a-z0-9-]+$/';
+
     /**
      * {@inheritDoc}
      */
     public static function getTypeName($nb = 0): string
     {
         return _n('Menu link', 'Menu links', $nb, 'footer');
-    }
-
-    public static function canView(): bool
-    {
-        return true;
     }
 
     /**
@@ -111,108 +108,6 @@ class PluginFooterMenu extends CommonDropdown
         ];
 
         return $tab;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function displaySpecificTypeField($ID, $field = [], array $options = []): void
-    {
-        switch ($field['name']) {
-            case 'interface':
-                Dropdown::showFromArray(
-                    $field['name'],
-                    self::getInterfaces(),
-                    ['value' => $this->fields[$field['name']]],
-                );
-                break;
-            case 'icon':
-                $icon  = $this->fields[$field['name']];
-                $icons = self::getTablerIconsList();
-
-                $rand = Dropdown::showFromArray(
-                    $field['name'],
-                    $icons,
-                    [
-                        'value'               => $icon,
-                        'width'               => '100%',
-                        'display_emptychoice' => true,
-                    ]
-                );
-
-                echo Html::scriptBlock(
-                    <<<JAVASCRIPT
-                    $(function() {
-                        var format_icon = function (opt) {
-                            if (!opt.id) {
-                                return opt.text;
-                            }
-                            return $(
-                                '<span><i class="' + opt.id + ' me-2"></i>' + opt.text + '</span>'
-                            );
-                        };
-
-                        var \$sel = $('#dropdown_{$field['name']}{$rand}');
-                        \$sel.select2('destroy');
-                        \$sel.select2({
-                            width: '100%',
-                            templateResult: format_icon,
-                            templateSelection: format_icon,
-                            escapeMarkup: function (m) {
-                                return m;
-                            }
-                        });
-                    });
-                    JAVASCRIPT
-                );
-                break;
-            default:
-                parent::displaySpecificTypeField($ID, $field, $options);
-                break;
-        }
-    }
-
-    public static function getTablerIconsList(): array
-    {
-        static $icons = null;
-
-        if ($icons !== null) {
-            return $icons;
-        }
-
-        $icons = [];
-
-        $candidate_dirs = [
-            GLPI_ROOT . '/public/lib/tabler-icons/icons/outline',
-            GLPI_ROOT . '/public/lib/tabler-icons/icons',
-            GLPI_ROOT . '/lib/tabler-icons/icons/outline',
-            GLPI_ROOT . '/css/lib/tabler/icons',
-        ];
-
-        foreach ($candidate_dirs as $dir) {
-            if (!is_dir($dir)) {
-                continue;
-            }
-
-            $files = glob($dir . '/*.svg');
-            if (empty($files)) {
-                continue;
-            }
-
-            foreach ($files as $file) {
-                $name  = basename($file, '.svg');
-                $class = 'ti ti-' . $name;
-                $label = ucfirst(str_replace('-', ' ', $name));
-                $icons[$class] = $label;
-            }
-
-            if (!empty($icons)) {
-                ksort($icons);
-                break;
-            }
-        }
-
-        return $icons;
     }
 
     /**
@@ -290,6 +185,45 @@ class PluginFooterMenu extends CommonDropdown
     }
 
     /**
+     * @param array $input
+     *
+     * @return array|false
+     */
+    private function checkUrlInput(array $input)
+    {
+        if (
+            isset($input['icon']) && $input['icon'] !== ''
+            && !preg_match(self::ICON_PATTERN, $input['icon'])
+        ) {
+            Session::addMessageAfterRedirect(__s('Invalid icon', 'footer'), false, ERROR);
+            return false;
+        }
+
+        if (isset($input['url']) && !PluginFooterLink::isSafeUrl($input['url'])) {
+            Session::addMessageAfterRedirect(
+                __s('The URL must be http(s) or a relative path starting with "/"', 'footer'),
+                false,
+                ERROR,
+            );
+            return false;
+        }
+
+        return $input;
+    }
+
+    public function prepareInputForAdd($input)
+    {
+        $input = parent::prepareInputForAdd($input);
+        return is_array($input) ? $this->checkUrlInput($input) : $input;
+    }
+
+    public function prepareInputForUpdate($input)
+    {
+        $input = parent::prepareInputForUpdate($input);
+        return is_array($input) ? $this->checkUrlInput($input) : $input;
+    }
+
+    /**
      * @param Migration $migration
      *
      * @return void
@@ -343,5 +277,20 @@ class PluginFooterMenu extends CommonDropdown
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");
         $migration->dropTable($table);
+
+        /** @var \DBmysql $DB */
+        global $DB;
+        foreach (['glpi_dropdowntranslations', 'glpi_logs', 'glpi_displaypreferences'] as $t) {
+            $DB->delete($t, ['itemtype' => self::class]);
+        }
+        $searches = array_column(iterator_to_array(
+            $DB->request(['SELECT' => 'id', 'FROM' => 'glpi_savedsearches', 'WHERE' => ['itemtype' => self::class]]),
+            false,
+        ), 'id');
+        if ($searches) {
+            $DB->delete('glpi_savedsearches_users', ['savedsearches_id' => $searches]);
+            $DB->delete('glpi_savedsearches_alerts', ['savedsearches_id' => $searches]);
+            $DB->delete('glpi_savedsearches', ['id' => $searches]);
+        }
     }
 }

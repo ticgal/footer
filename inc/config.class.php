@@ -166,6 +166,11 @@ class PluginFooterConfig extends CommonDBTM
         $table = self::getTable();
         $migration->displayMessage("Uninstalling $table");
         $migration->dropTable($table);
-    }
 
+        /** @var \DBmysql $DB */
+        global $DB;
+        foreach (['glpi_logs', 'glpi_displaypreferences'] as $t) {
+            $DB->delete($t, ['itemtype' => self::class]);
+        }
+    }
 }
