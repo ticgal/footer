@@ -1,6 +1,6 @@
 # Changelog
 
-## [3.0.0-beta.1] - 2026-10-08
+## [3.0.0] - 2026-10-08
 ### Added
 - GLPI 12 support (requires GLPI >= 12.0.0 and < 12.1.0)
 
