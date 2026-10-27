@@ -34,7 +34,7 @@ use GlpiPlugin\Footer\Config;
 use GlpiPlugin\Footer\Link;
 use GlpiPlugin\Footer\Menu;
 
-define('PLUGIN_FOOTER_VERSION', '3.0.0-beta.1');
+define('PLUGIN_FOOTER_VERSION', '3.0.0');
 define('PLUGIN_FOOTER_MIN_GLPI', '12.0.0');
 define('PLUGIN_FOOTER_MAX_GLPI', '12.1.0');
 define('PLUGIN_FOOTER_ICON', 'ti ti-shoe');
